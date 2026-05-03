@@ -26,14 +26,13 @@ export default function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success(t('auth.loginSuccess'));
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', (await supabase.auth.getUser()).data.user?.id ?? '')
-          .eq('role', 'admin')
-          .maybeSingle();
-
-        navigate(roleData ? '/users' : '/library');
+        const { data: { user } } = await supabase.auth.getUser();
+        let isAdmin = false;
+        if (user) {
+          const { data } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
+          isAdmin = !!data;
+        }
+        navigate(isAdmin ? '/users' : '/library');
       } else {
         if (password !== confirmPassword) {
           toast.error(t('auth.passwordMismatch'));
