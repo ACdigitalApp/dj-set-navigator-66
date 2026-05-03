@@ -15,6 +15,8 @@ import CratesPage from "./pages/Crates";
 import SourcesPage from "./pages/Sources";
 import SettingsPage from "./pages/Settings";
 import AuthPage from "./pages/Auth";
+import ForgotPasswordPage from "./pages/ForgotPassword";
+import ResetPasswordPage from "./pages/ResetPassword";
 import UserManagementPage from "./pages/UserManagement";
 import BankDetailsPage from "./pages/BankDetails";
 import TidalCallbackPage from "./pages/TidalCallback";
@@ -39,6 +41,8 @@ const App = () => (
                 {/* Public routes */}
                 <Route path="/" element={<IndexPage />} />
                 <Route path="/auth" element={<AuthPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/tidal-callback" element={<TidalCallbackPage />} />
                 <Route path="/forbidden" element={<ForbiddenPage />} />
 
