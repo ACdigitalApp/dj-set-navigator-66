@@ -23,14 +23,17 @@ export function AuthGuard({ children, requireAdmin = false }: AuthGuardProps) {
       }
 
       if (requireAdmin) {
-        const { data } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .eq('role', 'admin')
-          .maybeSingle();
+        // Use SECURITY DEFINER RPC to avoid RLS chicken-and-egg issues
+        const { data: isAdmin, error } = await supabase.rpc('has_role', {
+          _user_id: user.id,
+          _role: 'admin',
+        });
 
-        if (!data) {
+        if (import.meta.env.DEV) {
+          console.log('[AuthGuard] admin check', { userId: user.id, email: user.email, isAdmin, error });
+        }
+
+        if (error || !isAdmin) {
           navigate('/forbidden', { replace: true });
           return;
         }
