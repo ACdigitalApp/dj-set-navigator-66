@@ -61,6 +61,7 @@ export default function AuthPage() {
           options: {
             data: {
               display_name: displayName,
+              email,
               phone,
               whatsapp: waValue,
             },

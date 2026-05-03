@@ -61,12 +61,15 @@ interface UserRow {
 
 interface EditForm {
   display_name: string;
+  email: string;
   phone: string;
+  whatsapp: string;
   role: "admin" | "user";
   subscription_plan: string;
   subscription_status: string;
   current_period_end: string;
   account_status: string;
+  notification_enabled: boolean;
 }
 
 interface NewUserForm {
@@ -161,6 +164,10 @@ function formatCurrency(val: number) {
   return `€${val.toFixed(2)}`;
 }
 
+function normalizePhoneDigits(value: string) {
+  return value.replace(/[^0-9]/g, "");
+}
+
 // ── Password helpers ─────────────────────────────────────────────────────────
 function validatePassword(pwd: string, email?: string, displayName?: string) {
   const checks = {
@@ -225,12 +232,15 @@ export default function UserManagementPage() {
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<EditForm>({
     display_name: "",
+    email: "",
     phone: "",
+    whatsapp: "",
     role: "user",
     subscription_plan: "free",
     subscription_status: "active",
     current_period_end: "",
     account_status: "active",
+    notification_enabled: false,
   });
   const [search, setSearch] = useState("");
   const [filterPlan, setFilterPlan] = useState("all");
@@ -311,13 +321,15 @@ export default function UserManagementPage() {
   const filtered = users.filter((u) => {
     const q = search.toLowerCase().trim();
     const phoneDigits = (u.phone || "").replace(/[^0-9]/g, "");
+    const whatsappDigits = (u.whatsapp || "").replace(/[^0-9]/g, "");
     const qDigits = q.replace(/[^0-9]/g, "");
     const matchSearch =
       !q ||
-      (u.display_name || "").toLowerCase().includes(q) ||
+      (u.display_name || u.email || "").toLowerCase().includes(q) ||
       (u.email || "").toLowerCase().includes(q) ||
       (u.phone || "").toLowerCase().includes(q) ||
-      (qDigits.length > 0 && phoneDigits.includes(qDigits));
+      (u.whatsapp || "").toLowerCase().includes(q) ||
+      (qDigits.length > 0 && (phoneDigits.includes(qDigits) || whatsappDigits.includes(qDigits)));
     const matchPlan = filterPlan === "all" || u.subscription_plan === filterPlan;
     const matchStatus = filterStatus === "all" || u.subscription_status === filterStatus;
     return matchSearch && matchPlan && matchStatus;
@@ -327,22 +339,57 @@ export default function UserManagementPage() {
     setEditingUser(u.user_id);
     setEditForm({
       display_name: u.display_name || "",
+      email: u.email || "",
       phone: u.phone || "",
+      whatsapp: u.whatsapp || "",
       role: u.role,
       subscription_plan: u.subscription_plan,
       subscription_status: u.subscription_status,
       current_period_end: u.current_period_end ? u.current_period_end.split("T")[0] : "",
       account_status: u.account_status,
+      notification_enabled: u.notification_enabled,
     });
   };
 
   const cancelEditing = () => setEditingUser(null);
 
+  const toggleNotifications = async (userId: string, nextValue: boolean) => {
+    const previousUsers = users;
+    setUsers((prev) => prev.map((user) => (user.user_id === userId ? { ...user, notification_enabled: nextValue } : user)));
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ notification_enabled: nextValue, updated_at: new Date().toISOString() } as any)
+      .eq("user_id", userId);
+
+    if (error) {
+      setUsers(previousUsers);
+      toast.error("Errore aggiornamento notifiche");
+      return;
+    }
+
+    toast.success("Preferenza notifiche aggiornata");
+  };
+
   const saveUser = async (userId: string) => {
     try {
       setSaving(userId);
+      if (normalizePhoneDigits(editForm.phone).length < 8) {
+        toast.error("Inserisci un numero di telefono valido.");
+        return;
+      }
+      if (normalizePhoneDigits(editForm.whatsapp).length < 8) {
+        toast.error("Inserisci un numero WhatsApp valido.");
+        return;
+      }
       const profilePayload: any = {
         display_name: editForm.display_name || null,
+        email: editForm.email || null,
+        phone: editForm.phone || null,
+        whatsapp: editForm.whatsapp || null,
+        plan: editForm.subscription_plan,
+        subscription_status: editForm.subscription_status,
+        notification_enabled: editForm.notification_enabled,
         updated_at: new Date().toISOString(),
       };
       const { error: pErr } = await supabase.from("profiles").update(profilePayload).eq("user_id", userId);
@@ -421,6 +468,7 @@ export default function UserManagementPage() {
         options: {
           data: {
             display_name: newUserForm.display_name,
+            email: newUserForm.email,
             phone: newUserForm.phone,
             whatsapp: waVal,
           },
@@ -435,6 +483,17 @@ export default function UserManagementPage() {
           toast.error("Errore creazione utente: " + error.message);
         }
         return;
+      }
+      if (data.user) {
+        await supabase.from("profiles").update({
+          display_name: newUserForm.display_name || null,
+          email: newUserForm.email,
+          phone: newUserForm.phone,
+          whatsapp: waVal,
+          plan: newUserForm.subscription_plan,
+          notification_enabled: false,
+          updated_at: new Date().toISOString(),
+        } as any).eq("user_id", data.user.id);
       }
       if (data.user && newUserForm.role === "admin") {
         await supabase.from("user_roles").insert({ user_id: data.user.id, role: "admin" });
@@ -623,7 +682,7 @@ export default function UserManagementPage() {
                                   onChange={(e) => setEditForm({ ...editForm, display_name: e.target.value })}
                                   className="h-7 text-xs w-32"
                                 />
-                              ) : (u.display_name || "—")}
+                              ) : (u.display_name || u.email || "—")}
                               {isMe && <Badge variant="outline" className="ml-1 text-[10px] py-0">Tu</Badge>}
                             </span>
                           </div>
@@ -644,10 +703,17 @@ export default function UserManagementPage() {
                           ) : <span className="text-xs text-muted-foreground">—</span>}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
-                          {(u.whatsapp || u.phone) ? (
-                            <a href={`https://wa.me/${(u.whatsapp || u.phone || "").replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer"
+                          {isEditing ? (
+                            <Input
+                              value={editForm.whatsapp}
+                              onChange={(e) => setEditForm({ ...editForm, whatsapp: e.target.value })}
+                              placeholder="+39…"
+                              className="h-7 text-xs w-32"
+                            />
+                          ) : u.whatsapp ? (
+                            <a href={`https://wa.me/${normalizePhoneDigits(u.whatsapp)}`} target="_blank" rel="noopener noreferrer"
                               className="text-xs flex items-center gap-1 text-green-600 hover:underline">
-                              <Phone className="w-3 h-3" />{u.whatsapp || u.phone}
+                              <Phone className="w-3 h-3" />{u.whatsapp}
                             </a>
                           ) : <span className="text-xs text-muted-foreground">—</span>}
                         </TableCell>
@@ -700,7 +766,19 @@ export default function UserManagementPage() {
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground">{formatCurrency(u.total_paid)}</TableCell>
                         <TableCell className="text-xs text-muted-foreground">{formatCurrency(u.balance)}</TableCell>
-                        <TableCell><Switch checked={u.notification_enabled} disabled /></TableCell>
+                        <TableCell>
+                          {isEditing ? (
+                            <Switch
+                              checked={editForm.notification_enabled}
+                              onCheckedChange={(checked) => setEditForm({ ...editForm, notification_enabled: checked })}
+                            />
+                          ) : (
+                            <Switch
+                              checked={u.notification_enabled}
+                              onCheckedChange={(checked) => void toggleNotifications(u.user_id, checked)}
+                            />
+                          )}
+                        </TableCell>
                         <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{formatDate(u.created_at)}</TableCell>
                         <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{formatDate(u.updated_at)}</TableCell>
                         <TableCell className="text-right whitespace-nowrap">
