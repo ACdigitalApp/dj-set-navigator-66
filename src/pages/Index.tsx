@@ -36,6 +36,18 @@ export default function IndexPage() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Real visit counter — throttled to 1 increment per browser per 24h
+  useEffect(() => {
+    const KEY = 'djsengine_visit_counted_at';
+    const now = Date.now();
+    const last = Number(localStorage.getItem(KEY) || 0);
+    if (now - last < 24 * 60 * 60 * 1000) return;
+    (supabase.rpc as any)('increment_app_visit', { p_app_key: 'djsengine' })
+      .then(({ error }: { error: unknown }) => {
+        if (!error) localStorage.setItem(KEY, String(now));
+      });
+  }, []);
+
   return (
     <div className="flex-1 overflow-auto bg-[#f7faf8] text-slate-900">
       <main>
