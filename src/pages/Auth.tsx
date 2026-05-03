@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, User } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import vinylLogo from '@/assets/vinyl-logo.avif';
+import { getFriendlyAuthErrorMessage } from '@/lib/auth-utils';
 
 export default function AuthPage() {
   const { t } = useI18n();
@@ -25,7 +26,14 @@ export default function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success(t('auth.loginSuccess'));
-        navigate('/library');
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', (await supabase.auth.getUser()).data.user?.id ?? '')
+          .eq('role', 'admin')
+          .maybeSingle();
+
+        navigate(roleData ? '/users' : '/library');
       } else {
         if (password !== confirmPassword) {
           toast.error(t('auth.passwordMismatch'));
@@ -38,10 +46,10 @@ export default function AuthPage() {
           options: { data: { display_name: displayName } },
         });
         if (error) throw error;
-        toast.success(t('auth.signupSuccess'));
+        toast.success('Registrazione completata. Controlla la tua email per confermare l’account.');
       }
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err) {
+      toast.error(getFriendlyAuthErrorMessage(err, 'Operazione non riuscita. Riprova.'));
     } finally {
       setLoading(false);
     }
@@ -130,7 +138,7 @@ export default function AuthPage() {
 
           {isLogin && (
             <Link to="/forgot-password" className="text-sm text-primary hover:underline">
-              {t('auth.forgotPassword')}
+              Recupera password
             </Link>
           )}
 
