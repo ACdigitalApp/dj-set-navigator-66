@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_visit_counters: {
+        Row: {
+          app_key: string
+          id: string
+          total_visits: number
+          updated_at: string
+        }
+        Insert: {
+          app_key: string
+          id?: string
+          total_visits?: number
+          updated_at?: string
+        }
+        Update: {
+          app_key?: string
+          id?: string
+          total_visits?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       crate_tracks: {
         Row: {
           added_at: string
@@ -454,6 +475,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_app_visit_count: { Args: { p_app_key: string }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -461,6 +483,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_app_visit: { Args: { p_app_key: string }; Returns: number }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
