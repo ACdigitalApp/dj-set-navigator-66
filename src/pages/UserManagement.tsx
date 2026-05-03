@@ -426,7 +426,7 @@ export default function UserManagementPage() {
       }
       toast.success("Utente creato con successo");
       setShowNewUser(false);
-      setNewUserForm({ display_name: "", email: "", password: "", phone: "", role: "user", subscription_plan: "free" });
+      setNewUserForm({ display_name: "", email: "", password: "", phone: "", whatsapp: "", same_whatsapp: true, role: "user", subscription_plan: "free" });
       fetchUsers();
     } catch {
       toast.error("Errore creazione utente");
