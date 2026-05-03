@@ -831,10 +831,26 @@ export default function UserManagementPage() {
               })()}
             </div>
             <div>
-              <Label className="text-sm">Telefono / WhatsApp</Label>
+              <Label className="text-sm">Telefono *</Label>
               <Input type="tel" placeholder="+39 333 1234567" value={newUserForm.phone}
                 onChange={(e) => setNewUserForm({ ...newUserForm, phone: e.target.value })} className="mt-1" />
             </div>
+            <label className="flex items-center gap-2 text-xs text-foreground">
+              <input
+                type="checkbox"
+                checked={newUserForm.same_whatsapp}
+                onChange={(e) => setNewUserForm({ ...newUserForm, same_whatsapp: e.target.checked })}
+                className="h-4 w-4 rounded border-border"
+              />
+              Usa lo stesso numero per WhatsApp
+            </label>
+            {!newUserForm.same_whatsapp && (
+              <div>
+                <Label className="text-sm">WhatsApp *</Label>
+                <Input type="tel" placeholder="+39 333 1234567" value={newUserForm.whatsapp}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, whatsapp: e.target.value })} className="mt-1" />
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-sm">Ruolo</Label>
