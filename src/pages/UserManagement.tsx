@@ -45,6 +45,7 @@ interface UserRow {
   email: string | null;
   display_name: string | null;
   phone: string | null;
+  whatsapp: string | null;
   account_status: string;
   created_at: string | null;
   updated_at: string | null;
@@ -73,6 +74,8 @@ interface NewUserForm {
   email: string;
   password: string;
   phone: string;
+  whatsapp: string;
+  same_whatsapp: boolean;
   role: "admin" | "user";
   subscription_plan: string;
 }
@@ -235,7 +238,7 @@ export default function UserManagementPage() {
 
   const [showNewUser, setShowNewUser] = useState(false);
   const [newUserForm, setNewUserForm] = useState<NewUserForm>({
-    display_name: "", email: "", password: "", phone: "", role: "user", subscription_plan: "free",
+    display_name: "", email: "", password: "", phone: "", whatsapp: "", same_whatsapp: true, role: "user", subscription_plan: "free",
   });
   const [creatingUser, setCreatingUser] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
@@ -272,6 +275,7 @@ export default function UserManagementPage() {
         email: p.email ?? null,
         display_name: p.display_name,
         phone: p.phone ?? null,
+        whatsapp: p.whatsapp ?? null,
         account_status: p.account_status ?? "active",
         created_at: p.created_at,
         updated_at: p.updated_at,
@@ -393,6 +397,17 @@ export default function UserManagementPage() {
       toast.error("Email e password sono obbligatori");
       return;
     }
+    const phoneDigits = newUserForm.phone.replace(/\D/g, "");
+    const waVal = newUserForm.same_whatsapp ? newUserForm.phone : newUserForm.whatsapp;
+    const waDigits = waVal.replace(/\D/g, "");
+    if (phoneDigits.length < 8) {
+      toast.error("Inserisci un numero di telefono valido.");
+      return;
+    }
+    if (waDigits.length < 8) {
+      toast.error("Inserisci un numero WhatsApp valido.");
+      return;
+    }
     const validation = validatePassword(newUserForm.password, newUserForm.email, newUserForm.display_name);
     if (!validation.valid) {
       toast.error("Password troppo debole. Usa almeno 12 caratteri con maiuscole, minuscole, numeri e simboli.");
@@ -404,7 +419,11 @@ export default function UserManagementPage() {
         email: newUserForm.email,
         password: newUserForm.password,
         options: {
-          data: { display_name: newUserForm.display_name },
+          data: {
+            display_name: newUserForm.display_name,
+            phone: newUserForm.phone,
+            whatsapp: waVal,
+          },
           emailRedirectTo: `${window.location.origin}/auth`,
         },
       });
@@ -422,7 +441,7 @@ export default function UserManagementPage() {
       }
       toast.success("Utente creato con successo");
       setShowNewUser(false);
-      setNewUserForm({ display_name: "", email: "", password: "", phone: "", role: "user", subscription_plan: "free" });
+      setNewUserForm({ display_name: "", email: "", password: "", phone: "", whatsapp: "", same_whatsapp: true, role: "user", subscription_plan: "free" });
       fetchUsers();
     } catch {
       toast.error("Errore creazione utente");
@@ -440,7 +459,7 @@ export default function UserManagementPage() {
   }
 
   return (
-    <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
+    <div className="p-4 lg:p-6 space-y-5 w-full max-w-none">
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -625,10 +644,10 @@ export default function UserManagementPage() {
                           ) : <span className="text-xs text-muted-foreground">—</span>}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
-                          {u.phone ? (
-                            <a href={`https://wa.me/${u.phone.replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer"
+                          {(u.whatsapp || u.phone) ? (
+                            <a href={`https://wa.me/${(u.whatsapp || u.phone || "").replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer"
                               className="text-xs flex items-center gap-1 text-green-600 hover:underline">
-                              <Phone className="w-3 h-3" />{u.phone}
+                              <Phone className="w-3 h-3" />{u.whatsapp || u.phone}
                             </a>
                           ) : <span className="text-xs text-muted-foreground">—</span>}
                         </TableCell>
@@ -812,10 +831,26 @@ export default function UserManagementPage() {
               })()}
             </div>
             <div>
-              <Label className="text-sm">Telefono / WhatsApp</Label>
+              <Label className="text-sm">Telefono *</Label>
               <Input type="tel" placeholder="+39 333 1234567" value={newUserForm.phone}
                 onChange={(e) => setNewUserForm({ ...newUserForm, phone: e.target.value })} className="mt-1" />
             </div>
+            <label className="flex items-center gap-2 text-xs text-foreground">
+              <input
+                type="checkbox"
+                checked={newUserForm.same_whatsapp}
+                onChange={(e) => setNewUserForm({ ...newUserForm, same_whatsapp: e.target.checked })}
+                className="h-4 w-4 rounded border-border"
+              />
+              Usa lo stesso numero per WhatsApp
+            </label>
+            {!newUserForm.same_whatsapp && (
+              <div>
+                <Label className="text-sm">WhatsApp *</Label>
+                <Input type="tel" placeholder="+39 333 1234567" value={newUserForm.whatsapp}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, whatsapp: e.target.value })} className="mt-1" />
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-sm">Ruolo</Label>
