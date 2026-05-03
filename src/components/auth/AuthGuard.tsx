@@ -23,12 +23,6 @@ export function AuthGuard({ children, requireAdmin = false }: AuthGuardProps) {
       }
 
       if (requireAdmin) {
-        // Hardcoded admin bypass
-        if (user.email === 'acdigital.app@gmail.com') {
-          if (mounted) { setAuthorized(true); setLoading(false); }
-          return;
-        }
-
         const { data } = await supabase
           .from('user_roles')
           .select('role')
