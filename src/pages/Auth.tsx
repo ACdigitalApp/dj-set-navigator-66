@@ -158,6 +158,50 @@ export default function AuthPage() {
             </div>
           )}
 
+          {!isLogin && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Telefono *</label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-secondary border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="+39 333 1234567"
+                    required
+                  />
+                </div>
+              </div>
+              <label className="flex items-center gap-2 text-sm text-foreground">
+                <input
+                  type="checkbox"
+                  checked={sameWhatsapp}
+                  onChange={e => setSameWhatsapp(e.target.checked)}
+                  className="h-4 w-4 rounded border-border"
+                />
+                Usa lo stesso numero per WhatsApp
+              </label>
+              {!sameWhatsapp && (
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">WhatsApp *</label>
+                  <div className="relative">
+                    <MessageCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <input
+                      type="tel"
+                      value={whatsapp}
+                      onChange={e => setWhatsapp(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-secondary border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="+39 333 1234567"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
           {isLogin && (
             <Link to="/forgot-password" className="text-sm text-primary hover:underline">
               Recupera password
