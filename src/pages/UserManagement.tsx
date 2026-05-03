@@ -397,6 +397,17 @@ export default function UserManagementPage() {
       toast.error("Email e password sono obbligatori");
       return;
     }
+    const phoneDigits = newUserForm.phone.replace(/\D/g, "");
+    const waVal = newUserForm.same_whatsapp ? newUserForm.phone : newUserForm.whatsapp;
+    const waDigits = waVal.replace(/\D/g, "");
+    if (phoneDigits.length < 8) {
+      toast.error("Inserisci un numero di telefono valido.");
+      return;
+    }
+    if (waDigits.length < 8) {
+      toast.error("Inserisci un numero WhatsApp valido.");
+      return;
+    }
     const validation = validatePassword(newUserForm.password, newUserForm.email, newUserForm.display_name);
     if (!validation.valid) {
       toast.error("Password troppo debole. Usa almeno 12 caratteri con maiuscole, minuscole, numeri e simboli.");
@@ -408,7 +419,11 @@ export default function UserManagementPage() {
         email: newUserForm.email,
         password: newUserForm.password,
         options: {
-          data: { display_name: newUserForm.display_name },
+          data: {
+            display_name: newUserForm.display_name,
+            phone: newUserForm.phone,
+            whatsapp: waVal,
+          },
           emailRedirectTo: `${window.location.origin}/auth`,
         },
       });
