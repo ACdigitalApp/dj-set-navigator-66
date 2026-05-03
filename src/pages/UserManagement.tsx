@@ -460,6 +460,23 @@ export default function UserManagementPage() {
         </div>
       </div>
 
+      {/* Visitor Counter */}
+      <Card className="p-4 flex items-center justify-between bg-card">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold text-[#2D6A4F] font-[Inter]">Visite Totali</span>
+        </div>
+        <div className="flex gap-1">
+          {"00000".split("").map((digit, i) => (
+            <span
+              key={i}
+              className="inline-flex items-center justify-center w-8 h-10 rounded-md bg-secondary font-mono font-bold text-xl text-[#2D6A4F] border border-border"
+            >
+              {digit}
+            </span>
+          ))}
+        </div>
+      </Card>
+
       {/* Stats */}
       <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
         <StatCard icon={Euro} label="Incasso Totale" value={`€${stats.incassoTotale.toFixed(2)}`} color="text-green-600" />
