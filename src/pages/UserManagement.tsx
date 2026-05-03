@@ -61,12 +61,15 @@ interface UserRow {
 
 interface EditForm {
   display_name: string;
+  email: string;
   phone: string;
+  whatsapp: string;
   role: "admin" | "user";
   subscription_plan: string;
   subscription_status: string;
   current_period_end: string;
   account_status: string;
+  notification_enabled: boolean;
 }
 
 interface NewUserForm {
@@ -161,6 +164,10 @@ function formatCurrency(val: number) {
   return `€${val.toFixed(2)}`;
 }
 
+function normalizePhoneDigits(value: string) {
+  return value.replace(/[^0-9]/g, "");
+}
+
 // ── Password helpers ─────────────────────────────────────────────────────────
 function validatePassword(pwd: string, email?: string, displayName?: string) {
   const checks = {
@@ -225,12 +232,15 @@ export default function UserManagementPage() {
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<EditForm>({
     display_name: "",
+    email: "",
     phone: "",
+    whatsapp: "",
     role: "user",
     subscription_plan: "free",
     subscription_status: "active",
     current_period_end: "",
     account_status: "active",
+    notification_enabled: false,
   });
   const [search, setSearch] = useState("");
   const [filterPlan, setFilterPlan] = useState("all");
