@@ -35,21 +35,6 @@ export function TopBar() {
         <span className="italic text-[#2D6A4F] text-xs hidden sm:inline ml-1">by AC Digital App</span>
       </Link>
 
-      {/* Visitor Counter */}
-      <div className="flex flex-col items-center gap-0.5">
-        <span className="text-[10px] text-muted-foreground leading-none">Visitatori</span>
-        <div className="flex gap-0.5">
-          {String(348).padStart(5, '0').split('').map((digit, i) => (
-            <span
-              key={i}
-              className="inline-flex items-center justify-center w-5 h-6 font-mono font-bold text-sm text-[#2D6A4F]"
-            >
-              {digit}
-            </span>
-          ))}
-        </div>
-      </div>
-
       <div className="flex items-center gap-2">
         <Link
           to="/"
