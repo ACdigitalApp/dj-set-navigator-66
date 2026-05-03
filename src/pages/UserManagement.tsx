@@ -45,6 +45,7 @@ interface UserRow {
   email: string | null;
   display_name: string | null;
   phone: string | null;
+  whatsapp: string | null;
   account_status: string;
   created_at: string | null;
   updated_at: string | null;
@@ -73,6 +74,8 @@ interface NewUserForm {
   email: string;
   password: string;
   phone: string;
+  whatsapp: string;
+  same_whatsapp: boolean;
   role: "admin" | "user";
   subscription_plan: string;
 }
@@ -235,7 +238,7 @@ export default function UserManagementPage() {
 
   const [showNewUser, setShowNewUser] = useState(false);
   const [newUserForm, setNewUserForm] = useState<NewUserForm>({
-    display_name: "", email: "", password: "", phone: "", role: "user", subscription_plan: "free",
+    display_name: "", email: "", password: "", phone: "", whatsapp: "", same_whatsapp: true, role: "user", subscription_plan: "free",
   });
   const [creatingUser, setCreatingUser] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
@@ -272,6 +275,7 @@ export default function UserManagementPage() {
         email: p.email ?? null,
         display_name: p.display_name,
         phone: p.phone ?? null,
+        whatsapp: p.whatsapp ?? null,
         account_status: p.account_status ?? "active",
         created_at: p.created_at,
         updated_at: p.updated_at,
