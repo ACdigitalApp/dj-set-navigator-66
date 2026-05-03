@@ -682,7 +682,7 @@ export default function UserManagementPage() {
                                   onChange={(e) => setEditForm({ ...editForm, display_name: e.target.value })}
                                   className="h-7 text-xs w-32"
                                 />
-                              ) : (u.display_name || "—")}
+                              ) : (u.display_name || u.email || "—")}
                               {isMe && <Badge variant="outline" className="ml-1 text-[10px] py-0">Tu</Badge>}
                             </span>
                           </div>
@@ -703,10 +703,17 @@ export default function UserManagementPage() {
                           ) : <span className="text-xs text-muted-foreground">—</span>}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
-                          {(u.whatsapp || u.phone) ? (
-                            <a href={`https://wa.me/${(u.whatsapp || u.phone || "").replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer"
+                          {isEditing ? (
+                            <Input
+                              value={editForm.whatsapp}
+                              onChange={(e) => setEditForm({ ...editForm, whatsapp: e.target.value })}
+                              placeholder="+39…"
+                              className="h-7 text-xs w-32"
+                            />
+                          ) : u.whatsapp ? (
+                            <a href={`https://wa.me/${normalizePhoneDigits(u.whatsapp)}`} target="_blank" rel="noopener noreferrer"
                               className="text-xs flex items-center gap-1 text-green-600 hover:underline">
-                              <Phone className="w-3 h-3" />{u.whatsapp || u.phone}
+                              <Phone className="w-3 h-3" />{u.whatsapp}
                             </a>
                           ) : <span className="text-xs text-muted-foreground">—</span>}
                         </TableCell>
@@ -759,7 +766,19 @@ export default function UserManagementPage() {
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground">{formatCurrency(u.total_paid)}</TableCell>
                         <TableCell className="text-xs text-muted-foreground">{formatCurrency(u.balance)}</TableCell>
-                        <TableCell><Switch checked={u.notification_enabled} disabled /></TableCell>
+                        <TableCell>
+                          {isEditing ? (
+                            <Switch
+                              checked={editForm.notification_enabled}
+                              onCheckedChange={(checked) => setEditForm({ ...editForm, notification_enabled: checked })}
+                            />
+                          ) : (
+                            <Switch
+                              checked={u.notification_enabled}
+                              onCheckedChange={(checked) => void toggleNotifications(u.user_id, checked)}
+                            />
+                          )}
+                        </TableCell>
                         <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{formatDate(u.created_at)}</TableCell>
                         <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{formatDate(u.updated_at)}</TableCell>
                         <TableCell className="text-right whitespace-nowrap">
