@@ -459,7 +459,7 @@ export default function UserManagementPage() {
   }
 
   return (
-    <div className="p-6 space-y-5 max-w-[1600px] mx-auto">
+    <div className="p-4 lg:p-6 space-y-5 w-full max-w-none">
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -644,10 +644,10 @@ export default function UserManagementPage() {
                           ) : <span className="text-xs text-muted-foreground">—</span>}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
-                          {u.phone ? (
-                            <a href={`https://wa.me/${u.phone.replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer"
+                          {(u.whatsapp || u.phone) ? (
+                            <a href={`https://wa.me/${(u.whatsapp || u.phone || "").replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer"
                               className="text-xs flex items-center gap-1 text-green-600 hover:underline">
-                              <Phone className="w-3 h-3" />{u.phone}
+                              <Phone className="w-3 h-3" />{u.whatsapp || u.phone}
                             </a>
                           ) : <span className="text-xs text-muted-foreground">—</span>}
                         </TableCell>
