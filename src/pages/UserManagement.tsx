@@ -253,6 +253,15 @@ export default function UserManagementPage() {
   const [creatingUser, setCreatingUser] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
 
+  const [visitCount, setVisitCount] = useState<number>(0);
+
+  useEffect(() => {
+    (supabase.rpc as any)('get_app_visit_count', { p_app_key: 'djsengine' })
+      .then(({ data, error }: { data: number | null; error: unknown }) => {
+        if (!error && typeof data === 'number') setVisitCount(data);
+      });
+  }, []);
+
   // Cross-app revenue (statico a 0)
   const crossApp: Record<string, { amount: number; users: number }> = Object.fromEntries(
     Object.keys(CROSS_APP_LABELS).map((k) => [k, { amount: 0, users: 0 }])
@@ -531,7 +540,7 @@ export default function UserManagementPage() {
           <span className="text-sm font-semibold text-[#2D6A4F] font-[Inter]">Visite Totali</span>
         </div>
         <div className="flex gap-1">
-          {"00000".split("").map((digit, i) => (
+          {String(visitCount).padStart(5, '0').split("").map((digit, i) => (
             <span
               key={i}
               className="inline-flex items-center justify-center w-8 h-10 rounded-md bg-secondary font-mono font-bold text-xl text-[#2D6A4F] border border-border"
