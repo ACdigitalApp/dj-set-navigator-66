@@ -462,41 +462,28 @@ export default function UserManagementPage() {
     }
     try {
       setCreatingUser(true);
-      const { data, error } = await supabase.auth.signUp({
-        email: newUserForm.email,
-        password: newUserForm.password,
-        options: {
-          data: {
+      const { data, error } = await supabase.functions.invoke("admin-manage-users", {
+        body: {
+          action: "create-user",
+          payload: {
             display_name: newUserForm.display_name,
             email: newUserForm.email,
+            password: newUserForm.password,
             phone: newUserForm.phone,
             whatsapp: waVal,
+            role: newUserForm.role,
+            subscription_plan: newUserForm.subscription_plan,
           },
-          emailRedirectTo: `${window.location.origin}/auth`,
         },
       });
-      if (error) {
-        const msg = error.message?.toLowerCase() ?? "";
+      if (error || (data as any)?.error) {
+        const msg = String((data as any)?.error ?? error?.message ?? "").toLowerCase();
         if (msg.includes("weak") || msg.includes("pwned") || msg.includes("known") || msg.includes("easy to guess")) {
           toast.error("Password rifiutata perché troppo semplice o già nota. Scegline una più sicura.");
         } else {
-          toast.error("Errore creazione utente: " + error.message);
+          toast.error("Errore creazione utente: " + ((data as any)?.error ?? error?.message ?? ""));
         }
         return;
-      }
-      if (data.user) {
-        await supabase.from("profiles").update({
-          display_name: newUserForm.display_name || null,
-          email: newUserForm.email,
-          phone: newUserForm.phone,
-          whatsapp: waVal,
-          plan: newUserForm.subscription_plan,
-          notification_enabled: false,
-          updated_at: new Date().toISOString(),
-        } as any).eq("user_id", data.user.id);
-      }
-      if (data.user && newUserForm.role === "admin") {
-        await supabase.from("user_roles").insert({ user_id: data.user.id, role: "admin" });
       }
       toast.success("Utente creato con successo");
       setShowNewUser(false);
