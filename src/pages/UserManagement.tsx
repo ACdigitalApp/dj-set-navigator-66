@@ -254,11 +254,17 @@ export default function UserManagementPage() {
   const [showPwd, setShowPwd] = useState(false);
 
   const [visitCount, setVisitCount] = useState<number>(0);
+  const [appVisits, setAppVisits] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    (supabase.rpc as any)('get_app_visit_count', { p_app_key: 'djsengine' })
-      .then(({ data, error }: { data: number | null; error: unknown }) => {
-        if (!error && typeof data === 'number') setVisitCount(data);
+    (supabase.from as any)('app_visit_counters')
+      .select('app_key, total_visits')
+      .then(({ data, error }: { data: Array<{ app_key: string; total_visits: number }> | null; error: unknown }) => {
+        if (error || !data) return;
+        const map: Record<string, number> = {};
+        data.forEach((r) => { map[r.app_key] = r.total_visits; });
+        setAppVisits(map);
+        setVisitCount(map['djsengine'] ?? 0);
       });
   }, []);
 
