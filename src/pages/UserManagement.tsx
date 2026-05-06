@@ -254,11 +254,17 @@ export default function UserManagementPage() {
   const [showPwd, setShowPwd] = useState(false);
 
   const [visitCount, setVisitCount] = useState<number>(0);
+  const [appVisits, setAppVisits] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    (supabase.rpc as any)('get_app_visit_count', { p_app_key: 'djsengine' })
-      .then(({ data, error }: { data: number | null; error: unknown }) => {
-        if (!error && typeof data === 'number') setVisitCount(data);
+    (supabase.from as any)('app_visit_counters')
+      .select('app_key, total_visits')
+      .then(({ data, error }: { data: Array<{ app_key: string; total_visits: number }> | null; error: unknown }) => {
+        if (error || !data) return;
+        const map: Record<string, number> = {};
+        data.forEach((r) => { map[r.app_key] = r.total_visits; });
+        setAppVisits(map);
+        setVisitCount(map['djsengine'] ?? 0);
       });
   }, []);
 
@@ -534,20 +540,33 @@ export default function UserManagementPage() {
         </div>
       </div>
 
-      {/* Visitor Counter */}
-      <Card className="p-4 flex items-center justify-between bg-card">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-[#2D6A4F] font-[Inter]">Visite Totali</span>
+      {/* Visitor Counters per App */}
+      <Card className="p-4 bg-card">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm font-semibold text-[#2D6A4F] font-[Inter]">Visite Totali per App</span>
+          <span className="text-xs text-muted-foreground">
+            Totale: {Object.values(appVisits).reduce((s, v) => s + v, 0).toLocaleString()}
+          </span>
         </div>
-        <div className="flex gap-1">
-          {String(visitCount).padStart(5, '0').split("").map((digit, i) => (
-            <span
-              key={i}
-              className="inline-flex items-center justify-center w-8 h-10 rounded-md bg-secondary font-mono font-bold text-xl text-[#2D6A4F] border border-border"
-            >
-              {digit}
-            </span>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {Object.entries(CROSS_APP_LABELS).map(([key, label]) => {
+            const count = appVisits[key] ?? 0;
+            return (
+              <div key={key} className="flex items-center justify-between rounded-lg border bg-secondary/30 px-3 py-2">
+                <span className="text-xs font-semibold text-foreground truncate">{label}</span>
+                <div className="flex gap-0.5">
+                  {String(count).padStart(5, '0').split("").map((digit, i) => (
+                    <span
+                      key={i}
+                      className="inline-flex items-center justify-center w-6 h-8 rounded bg-card font-mono font-bold text-sm text-[#2D6A4F] border border-border"
+                    >
+                      {digit}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </Card>
 
