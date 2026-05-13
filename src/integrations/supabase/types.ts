@@ -171,11 +171,16 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          current_period_end: string | null
           display_name: string | null
           email: string | null
           id: string
           notification_enabled: boolean
           phone: string | null
+          plan: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_status: string | null
           updated_at: string
           user_id: string
           whatsapp: string | null
@@ -183,11 +188,16 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          current_period_end?: string | null
           display_name?: string | null
           email?: string | null
           id?: string
           notification_enabled?: boolean
           phone?: string | null
+          plan?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
           updated_at?: string
           user_id: string
           whatsapp?: string | null
@@ -195,11 +205,16 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          current_period_end?: string | null
           display_name?: string | null
           email?: string | null
           id?: string
           notification_enabled?: boolean
           phone?: string | null
+          plan?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
           updated_at?: string
           user_id?: string
           whatsapp?: string | null
@@ -302,6 +317,39 @@ export type Database = {
           name?: string
           type?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      stripe_webhook_events: {
+        Row: {
+          app_key: string | null
+          created_at: string
+          error: string | null
+          event_id: string
+          payload_summary: Json | null
+          processed_at: string | null
+          status: string
+          type: string
+        }
+        Insert: {
+          app_key?: string | null
+          created_at?: string
+          error?: string | null
+          event_id: string
+          payload_summary?: Json | null
+          processed_at?: string | null
+          status?: string
+          type: string
+        }
+        Update: {
+          app_key?: string | null
+          created_at?: string
+          error?: string | null
+          event_id?: string
+          payload_summary?: Json | null
+          processed_at?: string | null
+          status?: string
+          type?: string
         }
         Relationships: []
       }
