@@ -75,11 +75,24 @@ serve(async (req) => {
         success_url: `${origin_url}?stripe_session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin_url}?payment_cancelled=true`,
         customer_email: user.email,
+        client_reference_id: user.id,
         metadata: {
           user_id: user.id,
           user_email: user.email || "",
           plan,
           app: "djsengine",
+          app_key: "djsengine",
+          source: "djsengine.it",
+        },
+        subscription_data: {
+          metadata: {
+            user_id: user.id,
+            user_email: user.email || "",
+            plan,
+            app: "djsengine",
+            app_key: "djsengine",
+            source: "djsengine.it",
+          },
         },
       });
 
@@ -101,12 +114,12 @@ serve(async (req) => {
       const session = await stripe.checkout.sessions.retrieve(session_id);
 
       if (session.payment_status === "paid") {
-        // Update user profile to pro
+        // Best-effort frontend-driven activation; the source of truth is stripe-webhook.
         await supabase.from("profiles").update({
           plan: "pro",
           subscription_status: "active",
           updated_at: new Date().toISOString(),
-        }).eq("id", user.id);
+        }).eq("user_id", user.id);
 
         return new Response(JSON.stringify({
           status: "complete",
