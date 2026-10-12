@@ -3,25 +3,59 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- TODO: Set the document title to the name of your application -->
-    <title>djsengine</title>
-    <meta name="description" content="Gestione Playlist e Selezione Muicale">
-    <meta name="author" content="Lovable" />
+    <title>DJ'S Engine — Music Library & Playlist Manager for DJs</title>
+    <meta name="description" content="DJ'S Engine helps DJs organize tracks and playlists, analyze BPM and key, get smart mix recommendations and export to VirtualDJ and Traktor." />
+    <meta name="author" content="AC Digital App" />
+    <link rel="canonical" href="https://djsengine.it/" />
 
-    <!-- TODO: Update og:title to match your application name -->
-    
-    
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://djsengine.it/" />
+    <meta property="og:site_name" content="DJ'S Engine" />
+    <meta property="og:title" content="DJ'S Engine — Music Library & Playlist Manager for DJs" />
+    <meta property="og:description" content="Organize tracks and playlists, analyze BPM and key, get smart mix recommendations and export to VirtualDJ and Traktor." />
     <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/RnhpMDCBy3QpqVHvg65TSoExJcc2/social-images/social-1775724667213-Grafica_promozionale_di_DJ_S_ENGINE.webp">
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
+    <meta name="twitter:title" content="DJ'S Engine — Music Library & Playlist Manager for DJs" />
+    <meta name="twitter:description" content="Organize tracks and playlists, analyze BPM and key, get smart mix recommendations and export to VirtualDJ and Traktor." />
     <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/RnhpMDCBy3QpqVHvg65TSoExJcc2/social-images/social-1775724667213-Grafica_promozionale_di_DJ_S_ENGINE.webp">
-    <meta property="og:title" content="djsengine">
-  <meta name="twitter:title" content="djsengine">
-  <meta property="og:description" content="Gestione Playlist e Selezione Muicale">
-  <meta name="twitter:description" content="Gestione Playlist e Selezione Muicale">
-</head>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://djsengine.it/#org",
+          "name": "AC Digital App",
+          "url": "https://acdigitalapp.it"
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://djsengine.it/#website",
+          "name": "DJ'S Engine",
+          "url": "https://djsengine.it/",
+          "inLanguage": ["en", "it"],
+          "publisher": { "@id": "https://djsengine.it/#org" }
+        },
+        {
+          "@type": "SoftwareApplication",
+          "name": "DJ'S Engine",
+          "url": "https://djsengine.it/",
+          "applicationCategory": "MultimediaApplication",
+          "operatingSystem": "Web",
+          "description": "Music library and playlist manager for DJs: BPM and key analysis, smart mix recommendations, VirtualDJ and Traktor import/export.",
+          "publisher": { "@id": "https://djsengine.it/#org" },
+          "offers": [
+            { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "EUR" },
+            { "@type": "Offer", "name": "DJ Pro monthly", "price": "3.99", "priceCurrency": "EUR" },
+            { "@type": "Offer", "name": "DJ Pro annual", "price": "29.99", "priceCurrency": "EUR" }
+          ]
+        }
+      ]
+    }
+    </script>
+  </head>
 
   <body>
     <div id="root"></div>

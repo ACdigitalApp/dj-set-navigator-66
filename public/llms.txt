@@ -1,0 +1,14 @@
+# DJ'S Engine
+
+> Web app by AC Digital App for DJs to organize their music library and playlists, analyze BPM and key, get smart next-track recommendations and import/export with VirtualDJ and Traktor.
+
+## Key facts
+- Website: https://djsengine.it/
+- Publisher: AC Digital App (https://acdigitalapp.it)
+- Languages: English (default), Italian
+- Plans: Free (€0, up to 50 tracks, 1 crate); DJ Pro €3.99/month or €29.99/year (unlimited library and crates, VirtualDJ M3U export, trending tracks, smart AI recommendations, priority support)
+- Payments: SumUp
+
+## Pages
+- [Home](https://djsengine.it/): product overview
+- [Sign in / Register](https://djsengine.it/auth)
