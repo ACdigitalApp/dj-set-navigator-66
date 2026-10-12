@@ -29,12 +29,22 @@ export function TopBar() {
   if (authenticated === null) return null;
 
   return (
-    <header className="flex items-center justify-between px-4 md:px-6 h-14 border-b border-border bg-card shrink-0 z-50">
-      <Link to="/" className="flex items-center gap-2">
-        <Turntable size="sm" />
-        <span className="font-heading font-bold text-foreground text-sm tracking-tight hidden sm:inline">DJ'S ENGINE</span>
-        <span className="italic text-[#2D6A4F] text-xs hidden sm:inline ml-1">by AC Digital App</span>
-      </Link>
+    <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 md:px-6 min-h-14 py-2 border-b border-border bg-card shrink-0 z-50">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
+        <Link to="/" className="flex items-center gap-2">
+          <Turntable size="sm" />
+          <span className="font-heading font-bold text-foreground text-sm tracking-tight hidden sm:inline">DJ'S ENGINE</span>
+          <span className="italic text-[#2D6A4F] text-xs hidden sm:inline ml-1">by AC Digital App</span>
+        </Link>
+        <a
+          href="https://acdigitalapp.it"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs font-semibold text-[#2D6A4F] underline underline-offset-2 hover:text-[#1C6B3B] py-1"
+        >
+          {lang === 'it' ? 'AC Digital App — Scopri le altre applicazioni' : 'AC Digital App — Discover our other apps'}
+        </a>
+      </div>
 
       <div className="flex items-center gap-2">
         <LanguageSwitcher />
