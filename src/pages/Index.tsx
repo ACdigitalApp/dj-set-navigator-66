@@ -1,3 +1,4 @@
+import { useI18n } from '@/lib/i18n';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, LogIn, CheckCircle2 } from 'lucide-react';
@@ -7,23 +8,28 @@ import headphonesImg from '@/assets/headphones-gold.png';
 
 const features = [
   {
-    title: 'Music Selection',
+    title: 'Music Selection', titleIt: 'Selezione Musicale',
     description:
       'Organize tracks, playlists and library with smart filters for BPM, key, energy and compatibility.',
+    descriptionIt: 'Organizza tracce, playlist e libreria con filtri intelligenti per BPM, key, energia e compatibilità.',
   },
   {
-    title: 'Smart Recommendations',
+    title: 'Smart Recommendations', titleIt: 'Raccomandazioni Intelligenti',
     description:
       'Get suggestions for the next best track based on mix, style, energy and sound affinity.',
+    descriptionIt: 'Ricevi suggerimenti sul prossimo brano più adatto in base a mix, stile, energia e affinità sonora.',
   },
   {
-    title: 'Always Updated Library',
+    title: 'Always Updated Library', titleIt: 'Libreria Sempre Aggiornata',
     description:
       'Keep control of your selections, discover useful new tracks and prepare more effective sets.',
+    descriptionIt: 'Mantieni il controllo delle tue selezioni, scopri novità utili e prepara set più efficaci.',
   },
 ];
 
 export default function IndexPage() {
+  const { lang } = useI18n();
+  const L = (en: string, it: string) => (lang === 'it' ? it : en);
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
@@ -56,23 +62,23 @@ export default function IndexPage() {
           <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 py-20 lg:grid-cols-2 lg:px-10 lg:py-24">
             <div>
               <div className="mb-4 inline-flex items-center rounded-full border border-[#2D6A4F]/15 bg-[#2D6A4F]/5 px-4 py-1.5 text-sm font-semibold text-[#2D6A4F]">
-                DJ Selection, done right
+                {L("DJ Selection, done right", "La selezione DJ, fatta bene")}
               </div>
 
               <h1 className="max-w-3xl text-5xl font-extrabold leading-[0.95] tracking-tight text-slate-950 md:text-6xl lg:text-7xl">
-                Organize Your
-                <span className="block text-center">Music</span>
-                <span className="block text-center text-[#2D6A4F]">Like a DJ Pro</span>
+                {L("Organize Your", "Organizza la Tua")}
+                <span className="block text-center">{L('Music', 'Musica')}</span>
+                <span className="block text-center text-[#2D6A4F]">{L('Like a DJ Pro', 'Come un DJ Pro')}</span>
               </h1>
 
               <p className="mt-6 max-w-2xl text-xl leading-8 text-slate-600">
-                Build better playlists, choose the right tracks, find great mix combinations, and keep your library fresh and organized.
+                {L("Build better playlists, choose the right tracks, find great mix combinations, and keep your library fresh and organized.", "Crea playlist migliori, scegli i brani giusti, trova ottime combinazioni di mix e mantieni la libreria aggiornata e ordinata.")}
               </p>
               <p className="mt-3 max-w-2xl text-xl leading-8 text-[#2D6A4F] italic font-normal">
-                Works with VirtualDJ and Traktor for easy Tracks and Playlist Import and Export.
+                {L("Works with VirtualDJ and Traktor for easy Tracks and Playlist Import and Export.", "Funziona con VirtualDJ e Traktor per importare ed esportare facilmente brani e playlist.")}
               </p>
               <p className="mt-1 max-w-2xl text-sm italic text-slate-900">
-                Special Advice From Tony Caridi Dj And Producer
+                {L("Special Advice From Tony Caridi Dj And Producer", "Consigli speciali di Tony Caridi, DJ e Producer")}
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -80,7 +86,7 @@ export default function IndexPage() {
                   to={authenticated ? '/library' : '/auth'}
                   className="inline-flex items-center gap-2 rounded-2xl bg-[#2D6A4F] px-7 py-4 text-base font-semibold text-white transition hover:bg-[#24563f]"
                 >
-                  Start Free
+                  {L("Start Free", "Inizia Gratis")}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
@@ -88,7 +94,7 @@ export default function IndexPage() {
                   className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-7 py-4 text-base font-semibold text-slate-700 transition hover:border-[#2D6A4F] hover:text-[#2D6A4F]"
                 >
                   <LogIn className="h-4 w-4" />
-                  Sign In
+                  {L("Sign In", "Accedi")}
                 </Link>
               </div>
             </div>
@@ -125,24 +131,24 @@ export default function IndexPage() {
         <section className="bg-[#f7faf8] py-20">
           <div className="mx-auto max-w-4xl px-6 text-center lg:px-10">
             <h2 className="whitespace-nowrap text-2xl font-normal tracking-tight text-slate-950 md:text-3xl">
-              Ready to Improve Your Music Selection ?
+              {L("Ready to Improve Your Music Selection ?", "Pronto a migliorare la tua selezione musicale?")}
             </h2>
             <p className="mt-5 text-xl leading-8 text-slate-600">
-              Access your library, organize tracks and build smarter sets.
+              {L("Access your library, organize tracks and build smarter sets.", "Accedi alla tua libreria, organizza i brani e crea set più intelligenti.")}
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
               <Link
                 to="/auth"
                 className="inline-flex items-center gap-2 rounded-2xl bg-[#2D6A4F] px-7 py-4 text-base font-semibold text-white transition hover:bg-[#24563f]"
               >
-                Register Free
+                {L("Register Free", "Registrati Gratis")}
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/auth"
                 className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-7 py-4 text-base font-semibold text-slate-700 transition hover:border-[#2D6A4F] hover:text-[#2D6A4F]"
               >
-                Sign In
+                {L("Sign In", "Accedi")}
               </Link>
             </div>
           </div>
