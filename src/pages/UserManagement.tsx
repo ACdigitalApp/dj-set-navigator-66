@@ -737,7 +737,7 @@ export default function UserManagementPage() {
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                           {u.stripe_customer_id
-                            ? <span className="flex items-center gap-1"><CreditCard className="w-3 h-3" />Stripe</span>
+                            ? <span className="flex items-center gap-1"><CreditCard className="w-3 h-3" />SumUp</span>
                             : "—"}
                         </TableCell>
                         <TableCell>

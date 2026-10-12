@@ -1,10 +1,4 @@
 project_id = "iensrhazsgbwphbqknmv"
 
-[functions.stripe-webhook]
-verify_jwt = false
-
-[functions.stripe-customer-portal]
-verify_jwt = false
-
 [functions.visits]
 verify_jwt = false
