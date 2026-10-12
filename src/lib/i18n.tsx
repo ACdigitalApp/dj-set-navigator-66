@@ -371,3 +371,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 export function useI18n() {
   return useContext(I18nContext);
 }
+
+/** Non-hook translator for toasts/handlers; reads the saved preference (default English). */
+export function tr(en: string, it: string): string {
+  try { return localStorage.getItem('dj-engine-lang') === 'it' ? it : en; } catch { return en; }
+}

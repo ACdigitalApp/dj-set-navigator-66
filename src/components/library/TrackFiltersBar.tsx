@@ -1,3 +1,4 @@
+import { tr } from '@/lib/i18n';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -55,7 +56,7 @@ export function TrackFiltersBar({ filters, onChange, onNewTrack, onDeleteSelecte
 
       if (error) throw error;
       if (!tracks || tracks.length === 0) {
-        toast.info('Nessun brano da analizzare (tutti hanno già BPM o nessun audio)');
+        toast.info(tr('No tracks to analyze (all already have BPM or no audio)', 'Nessun brano da analizzare (tutti hanno già BPM o nessun audio)'));
         setAnalyzing(false);
         return;
       }

@@ -1,3 +1,4 @@
+import { tr } from '@/lib/i18n';
 import { useRef, useState, useEffect } from 'react';
 import type { Track } from '@/types/track';
 import { Upload, AlertCircle, Loader2 } from 'lucide-react';
@@ -48,11 +49,11 @@ export function AudioPlayer({ track, onNext, onPrev }: AudioPlayerProps) {
 
       // Auto-analyze BPM and key
       setAnalyzing(true);
-      toast.loading('Analisi BPM e tonalità...', { id: 'audio-analysis-player' });
+      toast.loading(tr('Analyzing BPM and key...', 'Analisi BPM e tonalità...'), { id: 'audio-analysis-player' });
       try {
         const result = await analyzeAudioFile(file);
         updateTrack.mutate({ id: track.id, updates: { bpm: result.bpm, key: result.key } });
-        toast.success(`BPM: ${result.bpm} | Tonalità: ${result.key} rilevati automaticamente`, { id: 'audio-analysis-player' });
+        toast.success(tr(`BPM: ${result.bpm} | Key: ${result.key} detected automatically`, `BPM: ${result.bpm} | Tonalità: ${result.key} rilevati automaticamente`), { id: 'audio-analysis-player' });
       } catch (analysisErr: any) {
         toast.error('Errore analisi audio: ' + analysisErr.message, { id: 'audio-analysis-player' });
       } finally {

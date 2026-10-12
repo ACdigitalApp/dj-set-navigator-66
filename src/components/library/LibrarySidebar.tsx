@@ -1,3 +1,4 @@
+import { tr } from '@/lib/i18n';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { 
@@ -103,7 +104,7 @@ export function LibrarySidebar({ activeFilter, onFilterChange }: LibrarySidebarP
         setVdjProgress(Math.round(((i + batchRaw.length) / vdjTracks.length) * 100));
       }
 
-      toast.success(`Importati: ${imported} | Già presenti (saltati): ${skipped} | Errori: ${errors}`);
+      toast.success(tr(`Imported: ${imported} | Already present (skipped): ${skipped} | Errors: ${errors}`, `Importati: ${imported} | Già presenti (saltati): ${skipped} | Errori: ${errors}`));
       queryClient.invalidateQueries({ queryKey: ['tracks'] });
     } catch (err: any) {
       if (err.name !== 'AbortError') {
