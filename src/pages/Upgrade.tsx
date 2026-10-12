@@ -16,7 +16,8 @@ export default function UpgradePage() {
   const [polling, setPolling] = useState(false);
   const [userPlan, setUserPlan] = useState<string>('free');
 
-  const stripeSessionId = searchParams.get('stripe_session_id');
+  const sumupPlan = searchParams.get('sumup_plan');
+  const stripeSessionId = sumupPlan ? localStorage.getItem('djs_sumup_checkout_id') : null;
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
@@ -35,16 +36,17 @@ export default function UpgradePage() {
     }
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await supabase.functions.invoke('stripe-checkout', {
-        body: { action: 'status', session_id: sessionId },
+      const res = await supabase.functions.invoke('sumup-checkout', {
+        body: { action: 'status', checkout_id: sessionId },
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
 
-      if (res.data?.payment_status === 'paid') {
+      if (res.data?.status === 'paid') {
+        localStorage.removeItem('djs_sumup_checkout_id');
         setPaymentStatus('paid');
         setPolling(false);
         toast.success('Pagamento completato! Sei Pro!');
-      } else if (res.data?.status === 'expired') {
+      } else if (res.data?.status === 'failed') {
         setPaymentStatus('expired');
         setPolling(false);
       } else {
@@ -67,12 +69,13 @@ export default function UpgradePage() {
     setLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await supabase.functions.invoke('stripe-checkout', {
+      const res = await supabase.functions.invoke('sumup-checkout', {
         body: { action: 'checkout', plan, origin_url: window.location.origin + '/upgrade' },
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
 
       if (res.data?.url) {
+        localStorage.setItem('djs_sumup_checkout_id', res.data.checkout_id);
         window.location.href = res.data.url;
       } else {
         toast.error(res.data?.error || 'Errore durante il checkout');
@@ -232,7 +235,7 @@ export default function UpgradePage() {
         {/* Security note */}
         <div className="flex items-center justify-center gap-2 mt-8 text-xs text-muted-foreground">
           <Shield className="w-4 h-4" />
-          <span>Pagamento sicuro via Stripe. Puoi cancellare in qualsiasi momento.</span>
+          <span>Pagamento sicuro via SumUp.</span>
         </div>
       </div>
     </div>
