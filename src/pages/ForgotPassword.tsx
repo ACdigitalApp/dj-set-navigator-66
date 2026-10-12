@@ -1,3 +1,4 @@
+import { useI18n } from '@/lib/i18n';
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Mail, ArrowLeft, Send } from "lucide-react";
@@ -9,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { getFriendlyAuthErrorMessage } from "@/lib/auth-utils";
 
 export default function ForgotPasswordPage() {
+  const { lang } = useI18n();
+  const L = (en: string, it: string) => (lang === 'it' ? it : en);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -23,9 +26,9 @@ export default function ForgotPasswordPage() {
 
       if (error) throw error;
 
-      toast.success("Se l'email esiste, riceverai un link per reimpostare la password.");
+      toast.success(L("If the email exists, you will receive a link to reset your password.", "Se l'email esiste, riceverai un link per reimpostare la password."));
     } catch (error) {
-      toast.error(getFriendlyAuthErrorMessage(error, "Invio link non riuscito. Riprova."));
+      toast.error(getFriendlyAuthErrorMessage(error, L("Could not send the link. Please try again.", "Invio link non riuscito. Riprova.")));
     } finally {
       setLoading(false);
     }
@@ -35,9 +38,9 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen bg-background px-4 py-10 flex items-center justify-center">
       <Card className="w-full max-w-md border-border shadow-sm">
         <CardHeader className="space-y-2 text-center">
-          <CardTitle className="text-2xl font-semibold text-foreground">Recupera password</CardTitle>
+          <CardTitle className="text-2xl font-semibold text-foreground">{L("Recover password", "Recupera password")}</CardTitle>
           <CardDescription>
-            Inserisci la tua email e riceverai un link per reimpostare la password.
+            {L("Enter your email and you will receive a link to reset your password.", "Inserisci la tua email e riceverai un link per reimpostare la password.")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -60,7 +63,7 @@ export default function ForgotPasswordPage() {
 
             <Button type="submit" className="w-full rounded-xl" disabled={loading}>
               <Send className="h-4 w-4" />
-              {loading ? "Invio in corso..." : "Invia link di recupero"}
+              {loading ? L("Sending...", "Invio in corso...") : L("Send recovery link", "Invia link di recupero")}
             </Button>
 
             <Button asChild variant="outline" className="w-full rounded-xl">
