@@ -89,7 +89,7 @@ export default function ResetPasswordPage() {
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   className="pl-10 pr-10"
-                  placeholder=L("Enter a strong password", "Inserisci una password forte")
+                  placeholder={L("Enter a strong password", "Inserisci una password forte")}
                   required
                 />
                 <button
@@ -110,7 +110,7 @@ export default function ResetPasswordPage() {
                 type={showPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
-                placeholder=L("Repeat the new password", "Ripeti la nuova password")
+                placeholder={L("Repeat the new password", "Ripeti la nuova password")}
                 required
               />
             </div>
