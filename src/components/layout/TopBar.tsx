@@ -3,10 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LogOut, LogIn, Home } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { Turntable } from '@/components/Turntable';
 
 export function TopBar() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const navigate = useNavigate();
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
 
@@ -36,6 +37,7 @@ export function TopBar() {
       </Link>
 
       <div className="flex items-center gap-2">
+        <LanguageSwitcher />
         <Link
           to="/"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
@@ -50,7 +52,7 @@ export function TopBar() {
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors"
           >
             <LogOut className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Sign Out</span>
+            <span className="hidden sm:inline">{lang === 'it' ? 'Esci' : 'Sign Out'}</span>
           </button>
         ) : (
           <Link

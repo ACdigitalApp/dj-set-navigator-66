@@ -7,7 +7,8 @@ import { ArrowLeft, Crown, Check, X, Loader2, CreditCard, Shield, Zap, Music, He
 import { toast } from 'sonner';
 
 export default function UpgradePage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const L = (en: string, it: string) => (lang === 'it' ? it : en);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
@@ -45,7 +46,7 @@ export default function UpgradePage() {
         localStorage.removeItem('djs_sumup_checkout_id');
         setPaymentStatus('paid');
         setPolling(false);
-        toast.success('Pagamento completato! Sei Pro!');
+        toast.success(L('Payment completed! You are Pro!', 'Pagamento completato! Sei Pro!'));
       } else if (res.data?.status === 'failed') {
         setPaymentStatus('expired');
         setPolling(false);
@@ -78,11 +79,11 @@ export default function UpgradePage() {
         localStorage.setItem('djs_sumup_checkout_id', res.data.checkout_id);
         window.location.href = res.data.url;
       } else {
-        toast.error(res.data?.error || 'Errore durante il checkout');
+        toast.error(res.data?.error || L('Checkout error', 'Errore durante il checkout'));
         setLoading(false);
       }
     } catch {
-      toast.error('Errore durante il checkout');
+      toast.error(L('Checkout error', 'Errore durante il checkout'));
       setLoading(false);
     }
   }
@@ -97,10 +98,10 @@ export default function UpgradePage() {
           <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-5">
             <Check className="w-8 h-8 text-emerald-600" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">Pagamento Completato!</h1>
-          <p className="text-muted-foreground mb-6">Ora sei un DJ Pro. Goditi tutte le funzionalita!</p>
+          <h1 className="text-2xl font-bold text-foreground mb-2">{L('Payment Completed!', 'Pagamento Completato!')}</h1>
+          <p className="text-muted-foreground mb-6">{L('You are now a DJ Pro. Enjoy all features!', 'Ora sei un DJ Pro. Goditi tutte le funzionalità!')}</p>
           <Button onClick={() => navigate('/dashboard')} className="px-8">
-            Torna alla Dashboard
+            {L('Back to Dashboard', 'Torna alla Dashboard')}
           </Button>
         </div>
       </div>
@@ -113,8 +114,8 @@ export default function UpgradePage() {
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <div className="w-full max-w-md bg-card rounded-2xl border border-border p-10 text-center shadow-lg">
           <Loader2 className="w-10 h-10 text-primary animate-spin mx-auto mb-5" />
-          <h2 className="text-xl font-bold text-foreground mb-2">Verifica pagamento...</h2>
-          <p className="text-muted-foreground">Attendere qualche secondo...</p>
+          <h2 className="text-xl font-bold text-foreground mb-2">{L('Verifying payment...', 'Verifica pagamento...')}</h2>
+          <p className="text-muted-foreground">{L('Please wait a few seconds...', 'Attendere qualche secondo...')}</p>
         </div>
       </div>
     );
@@ -126,18 +127,18 @@ export default function UpgradePage() {
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <div className="w-full max-w-md bg-card rounded-2xl border border-border p-10 text-center shadow-lg">
           <Crown className="w-12 h-12 text-warning mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-foreground mb-2">Sei gia DJ Pro!</h1>
-          <p className="text-muted-foreground mb-6">Hai gia accesso a tutte le funzionalita Pro.</p>
+          <h1 className="text-2xl font-bold text-foreground mb-2">{L('You are already DJ Pro!', 'Sei già DJ Pro!')}</h1>
+          <p className="text-muted-foreground mb-6">{L('You already have access to all Pro features.', 'Hai già accesso a tutte le funzionalità Pro.')}</p>
           <Button onClick={() => navigate('/dashboard')} variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Torna alla Dashboard
+            <ArrowLeft className="w-4 h-4 mr-2" /> {L('Back to Dashboard', 'Torna alla Dashboard')}
           </Button>
         </div>
       </div>
     );
   }
 
-  const monthly = { price: '3,99', period: '/mese' };
-  const annual = { price: '29,99', period: '/anno', monthly: '2,50' };
+  const monthly = { price: '3,99', period: L('/month', '/mese') };
+  const annual = { price: '29,99', period: L('/year', '/anno'), monthly: '2,50' };
 
   return (
     <div className="min-h-screen bg-background">
@@ -148,8 +149,8 @@ export default function UpgradePage() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-foreground">Passa a DJ Pro</h1>
-            <p className="text-sm text-muted-foreground">Sblocca tutte le funzionalita per i tuoi set</p>
+            <h1 className="text-xl font-bold text-foreground">{L('Upgrade to DJ Pro', 'Passa a DJ Pro')}</h1>
+            <p className="text-sm text-muted-foreground">{L('Unlock all features for your sets', 'Sblocca tutte le funzionalità per i tuoi set')}</p>
           </div>
         </div>
       </div>
@@ -160,11 +161,11 @@ export default function UpgradePage() {
           <div className="bg-card border border-border rounded-xl p-1 inline-flex">
             <button onClick={() => setBilling('monthly')}
               className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${billing === 'monthly' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>
-              Mensile
+              {L('Monthly', 'Mensile')}
             </button>
             <button onClick={() => setBilling('annual')}
               className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${billing === 'annual' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>
-              Annuale <span className="text-xs ml-1 opacity-80">-37%</span>
+              {L('Annual', 'Annuale')} <span className="text-xs ml-1 opacity-80">-37%</span>
             </button>
           </div>
         </div>
@@ -174,34 +175,34 @@ export default function UpgradePage() {
           {/* Free Plan */}
           <div className="bg-card rounded-2xl border border-border p-7">
             <h3 className="text-lg font-bold text-foreground mb-1">Free</h3>
-            <p className="text-sm text-muted-foreground mb-5">Per iniziare a mixare</p>
+            <p className="text-sm text-muted-foreground mb-5">{L('To start mixing', 'Per iniziare a mixare')}</p>
             <div className="mb-6">
               <span className="text-3xl font-bold text-foreground">&euro;0</span>
               <span className="text-muted-foreground text-sm">{monthly.period}</span>
             </div>
             <ul className="space-y-3 mb-8">
-              <Feature ok text="Libreria fino a 50 tracce" />
-              <Feature ok text="Analisi BPM e Key" />
-              <Feature ok text="1 Crate" />
-              <Feature no text="Crate illimitati" />
-              <Feature no text="Export VirtualDJ" />
-              <Feature no text="Scopri tracce trending" />
-              <Feature no text="Raccomandazioni smart" />
+              <Feature ok text={L('Library up to 50 tracks', 'Libreria fino a 50 tracce')} />
+              <Feature ok text={L('BPM and Key analysis', 'Analisi BPM e Key')} />
+              <Feature ok text={L('1 Crate', '1 Crate')} />
+              <Feature no text={L('Unlimited crates', 'Crate illimitati')} />
+              <Feature no text={L('VirtualDJ export', 'Export VirtualDJ')} />
+              <Feature no text={L('Discover trending tracks', 'Scopri tracce trending')} />
+              <Feature no text={L('Smart recommendations', 'Raccomandazioni smart')} />
             </ul>
             <Button disabled variant="outline" className="w-full">
-              Piano attuale
+              {L('Current plan', 'Piano attuale')}
             </Button>
           </div>
 
           {/* Pro Plan */}
           <div className="bg-card rounded-2xl border-2 border-primary p-7 relative">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-bold px-4 py-1 rounded-full">
-              CONSIGLIATO
+              {L('RECOMMENDED', 'CONSIGLIATO')}
             </div>
             <h3 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
               DJ Pro <Crown className="w-5 h-5 text-warning" />
             </h3>
-            <p className="text-sm text-muted-foreground mb-5">Per il DJ che vuole il massimo</p>
+            <p className="text-sm text-muted-foreground mb-5">{L('For the DJ who wants the most', 'Per il DJ che vuole il massimo')}</p>
             <div className="mb-6">
               {billing === 'monthly' ? (
                 <>
@@ -212,22 +213,22 @@ export default function UpgradePage() {
                 <>
                   <span className="text-3xl font-bold text-foreground">&euro;{annual.price}</span>
                   <span className="text-muted-foreground text-sm">{annual.period}</span>
-                  <p className="text-xs text-emerald-600 font-semibold mt-1">&euro;{annual.monthly}{monthly.period} equivalente</p>
+                  <p className="text-xs text-emerald-600 font-semibold mt-1">&euro;{annual.monthly}{monthly.period} {L(' equivalent', ' equivalente')}</p>
                 </>
               )}
             </div>
             <ul className="space-y-3 mb-8">
-              <Feature ok text="Libreria illimitata" />
-              <Feature ok text="Analisi BPM e Key avanzata" />
-              <Feature ok text="Crate illimitati" />
-              <Feature ok text="Export M3U per VirtualDJ" />
-              <Feature ok text="Scopri tracce trending" />
-              <Feature ok text="Raccomandazioni smart AI" />
-              <Feature ok text="Supporto prioritario" />
+              <Feature ok text={L('Unlimited library', 'Libreria illimitata')} />
+              <Feature ok text={L('Advanced BPM and Key analysis', 'Analisi BPM e Key avanzata')} />
+              <Feature ok text={L('Unlimited crates', 'Crate illimitati')} />
+              <Feature ok text={L('M3U export for VirtualDJ', 'Export M3U per VirtualDJ')} />
+              <Feature ok text={L('Discover trending tracks', 'Scopri tracce trending')} />
+              <Feature ok text={L('Smart AI recommendations', 'Raccomandazioni smart AI')} />
+              <Feature ok text={L('Priority support', 'Supporto prioritario')} />
             </ul>
             <Button onClick={() => handleCheckout(billing)} disabled={loading}
               className="w-full h-12 font-semibold shadow-md">
-              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><CreditCard className="w-5 h-5 mr-2" /> Upgrade a DJ Pro</>}
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><CreditCard className="w-5 h-5 mr-2" /> {L('Upgrade to DJ Pro', 'Passa a DJ Pro')}</>}
             </Button>
           </div>
         </div>
@@ -235,7 +236,7 @@ export default function UpgradePage() {
         {/* Security note */}
         <div className="flex items-center justify-center gap-2 mt-8 text-xs text-muted-foreground">
           <Shield className="w-4 h-4" />
-          <span>Pagamento sicuro via SumUp.</span>
+          <span>{L('Secure payment via SumUp.', 'Pagamento sicuro via SumUp.')}</span>
         </div>
       </div>
     </div>
