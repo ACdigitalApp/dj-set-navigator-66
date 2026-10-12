@@ -736,7 +736,7 @@ export default function UserManagementPage() {
                           ) : getPlanBadge(u.subscription_plan)}
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
-                          {u.stripe_customer_id
+                          {u.subscription_plan === 'pro'
                             ? <span className="flex items-center gap-1"><CreditCard className="w-3 h-3" />SumUp</span>
                             : "—"}
                         </TableCell>

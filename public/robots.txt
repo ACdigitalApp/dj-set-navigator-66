@@ -1,9 +1,19 @@
 User-agent: *
-Allow: /
-Disallow: /users
+Allow: /$
+Disallow: /auth
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /tidal-callback
+Disallow: /forbidden
+Disallow: /dashboard
+Disallow: /library
+Disallow: /discover
+Disallow: /track/
+Disallow: /crates
+Disallow: /sources
 Disallow: /settings
 Disallow: /upgrade
-Disallow: /reset-password
-Disallow: /bank-details
+Disallow: /users
+Disallow: /bank
 
 Sitemap: https://djsengine.it/sitemap.xml

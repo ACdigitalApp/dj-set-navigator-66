@@ -1,3 +1,4 @@
+import { tr } from '@/lib/i18n';
 import { useState, useMemo, useCallback } from 'react';
 import { useTracks, useDeleteTracks } from '@/hooks/useTracks';
 import { LibrarySidebar } from '@/components/library/LibrarySidebar';
@@ -134,7 +135,7 @@ export default function LibraryPage() {
     // Dedup check
     const existing = await fetchExistingTrackKeys();
     if (existing.has(normalizeKey(newTitle, newArtist))) {
-      toast.warning('Brano già presente in libreria (stesso titolo + artista)');
+      toast.warning(tr('Track already in library (same title + artist)', 'Brano già presente in libreria (stesso titolo + artista)'));
       return;
     }
     const { error } = await supabase.from('tracks').insert({ title: newTitle.trim(), artist: newArtist.trim(), source: 'local', status: 'to_review' });

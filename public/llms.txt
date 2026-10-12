@@ -11,4 +11,3 @@
 
 ## Pages
 - [Home](https://djsengine.it/): product overview
-- [Sign in / Register](https://djsengine.it/auth)

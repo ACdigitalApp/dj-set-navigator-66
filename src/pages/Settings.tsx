@@ -1,3 +1,4 @@
+import { tr } from '@/lib/i18n';
 import { useState, useEffect } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { useSettings, useUpsertSetting } from '@/hooks/useSettings';
@@ -222,7 +223,7 @@ export default function SettingsPage() {
           <h2 className="text-lg font-heading font-semibold text-destructive flex items-center gap-2">
             <Trash2 className="h-5 w-5" /> Zona Pericolosa
           </h2>
-          <p className="text-xs text-muted-foreground">Elimina tutti i brani dalla libreria. Questa azione è irreversibile.</p>
+          <p className="text-xs text-muted-foreground">{tr('Delete all tracks from the library. This action cannot be undone.', 'Elimina tutti i brani dalla libreria. Questa azione è irreversibile.')}</p>
           <div className="flex items-center gap-3">
             {resetStep === 0 && (
               <button
@@ -236,7 +237,7 @@ export default function SettingsPage() {
               <div className="flex items-center gap-2">
                 <span className="text-sm text-warning font-medium">Sei sicuro?</span>
                 <button onClick={handleResetLibrary} className="px-4 py-2 rounded-lg bg-destructive/20 text-destructive text-sm font-medium hover:bg-destructive/30 transition-colors">
-                  Sì, continua
+                  {tr('Yes, continue', 'Sì, continua')}
                 </button>
                 <button onClick={() => setResetStep(0)} className="px-4 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:bg-secondary transition-colors">
                   Annulla
