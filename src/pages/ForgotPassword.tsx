@@ -69,7 +69,7 @@ export default function ForgotPasswordPage() {
             <Button asChild variant="outline" className="w-full rounded-xl">
               <Link to="/auth">
                 <ArrowLeft className="h-4 w-4" />
-                Torna al login
+                {L('Back to login', 'Torna al login')}
               </Link>
             </Button>
           </form>

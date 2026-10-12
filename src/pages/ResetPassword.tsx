@@ -10,11 +10,11 @@ import { Button } from "@/components/ui/button";
 import { getFriendlyAuthErrorMessage, validateStrongPassword } from "@/lib/auth-utils";
 
 const PASSWORD_RULES = [
-  { key: "length", label: "Almeno 12 caratteri" },
-  { key: "upper", label: "Almeno una lettera maiuscola" },
-  { key: "lower", label: "Almeno una lettera minuscola" },
-  { key: "number", label: "Almeno un numero" },
-  { key: "symbol", label: "Almeno un simbolo" },
+  { key: "length", label: "Almeno 12 caratteri", en: "At least 12 characters" },
+  { key: "upper", label: "Almeno una lettera maiuscola", en: "At least one uppercase letter" },
+  { key: "lower", label: "Almeno una lettera minuscola", en: "At least one lowercase letter" },
+  { key: "number", label: "Almeno un numero", en: "At least one number" },
+  { key: "symbol", label: "Almeno un simbolo", en: "At least one symbol" },
 ] as const;
 
 export default function ResetPasswordPage() {
@@ -123,7 +123,7 @@ export default function ResetPasswordPage() {
                     <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full ${passed ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
                       <Check className="h-3.5 w-3.5" />
                     </span>
-                    <span className={passed ? 'text-foreground' : 'text-muted-foreground'}>{rule.label}</span>
+                    <span className={passed ? 'text-foreground' : 'text-muted-foreground'}>{L(rule.en, rule.label)}</span>
                   </div>
                 );
               })}
@@ -142,7 +142,7 @@ export default function ResetPasswordPage() {
             <Button asChild variant="outline" className="w-full rounded-xl">
               <Link to="/auth">
                 <ArrowLeft className="h-4 w-4" />
-                Torna al login
+                {L('Back to login', 'Torna al login')}
               </Link>
             </Button>
           </form>
