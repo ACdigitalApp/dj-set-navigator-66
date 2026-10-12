@@ -70,11 +70,24 @@ Deno.serve(async (req) => {
       }
       if (data.status === "PAID") {
         const planKey = String(data.checkout_reference).split("_")[2];
-        const days = PLANS[planKey]?.days ?? 31;
+        const plan = PLANS[planKey];
+        if (!plan || Number(data.amount) < plan.amount || data.currency !== "EUR") {
+          return json({ error: "Pagamento non conforme" }, 400);
+        }
+        // Idempotency: credit each SumUp checkout only once
+        const { error: insErr } = await supabase.from("sumup_payments").insert({
+          checkout_id: data.id, user_id: user.id, plan: planKey, amount: Number(data.amount),
+        });
+        if (insErr) return json({ status: "paid", already_processed: true });
+
+        const { data: prof } = await supabase.from("profiles")
+          .select("current_period_end").eq("user_id", user.id).maybeSingle();
+        const currentEnd = prof?.current_period_end ? new Date(prof.current_period_end).getTime() : 0;
+        const base = Math.max(Date.now(), currentEnd);
         await supabase.from("profiles").update({
           plan: "pro",
           subscription_status: "active",
-          current_period_end: new Date(Date.now() + days * 86400000).toISOString(),
+          current_period_end: new Date(base + plan.days * 86400000).toISOString(),
           updated_at: new Date().toISOString(),
         }).eq("user_id", user.id);
         return json({ status: "paid" });
