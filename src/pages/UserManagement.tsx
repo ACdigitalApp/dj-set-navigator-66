@@ -1,3 +1,4 @@
+import { tr, useI18n } from '@/lib/i18n';
 import { useState, useEffect, useCallback } from "react";
 import {
   Users, Shield, ShieldCheck, Phone, Save, Loader2, RefreshCw,
@@ -92,12 +93,12 @@ const PLAN_LABELS: Record<string, string> = {
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  active: "Attivo",
+  active: tr("Active", "Attivo"),
   trialing: "Trial",
-  cancelled: "Cancellato",
-  blocked: "Bloccato",
-  expired: "Scaduto",
-  past_due: "Scaduto",
+  cancelled: tr("Canceled", "Cancellato"),
+  blocked: tr("Blocked", "Bloccato"),
+  expired: tr("Expired", "Scaduto"),
+  past_due: tr("Expired", "Scaduto"),
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -223,6 +224,7 @@ function StatCard({
 }
 
 export default function UserManagementPage() {
+  useI18n();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -280,7 +282,7 @@ export default function UserManagementPage() {
         .from("profiles")
         .select("*")
         .order("created_at", { ascending: false });
-      if (pErr) { toast.error("Errore caricamento utenti"); return; }
+      if (pErr) { toast.error(tr("Error loading users", "Errore caricamento utenti")); return; }
 
       const { data: roles } = await supabase
         .from("user_roles")
@@ -310,7 +312,7 @@ export default function UserManagementPage() {
 
       setUsers(merged);
     } catch {
-      toast.error("Errore nel caricamento utenti");
+      toast.error(tr("Error loading users", "Errore nel caricamento utenti"));
     } finally {
       setLoading(false);
     }
@@ -373,22 +375,22 @@ export default function UserManagementPage() {
 
     if (error) {
       setUsers(previousUsers);
-      toast.error("Errore aggiornamento notifiche");
+      toast.error(tr("Error updating notifications", "Errore aggiornamento notifiche"));
       return;
     }
 
-    toast.success("Preferenza notifiche aggiornata");
+    toast.success(tr("Notification preference updated", "Preferenza notifiche aggiornata"));
   };
 
   const saveUser = async (userId: string) => {
     try {
       setSaving(userId);
       if (normalizePhoneDigits(editForm.phone).length < 8) {
-        toast.error("Inserisci un numero di telefono valido.");
+        toast.error(tr("Enter a valid phone number.", "Inserisci un numero di telefono valido."));
         return;
       }
       if (normalizePhoneDigits(editForm.whatsapp).length < 8) {
-        toast.error("Inserisci un numero WhatsApp valido.");
+        toast.error(tr("Enter a valid WhatsApp number.", "Inserisci un numero WhatsApp valido."));
         return;
       }
       const profilePayload: any = {
@@ -402,7 +404,7 @@ export default function UserManagementPage() {
         updated_at: new Date().toISOString(),
       };
       const { error: pErr } = await supabase.from("profiles").update(profilePayload).eq("user_id", userId);
-      if (pErr) { toast.error("Errore aggiornamento profilo"); return; }
+      if (pErr) { toast.error(tr("Error updating profile", "Errore aggiornamento profilo")); return; }
 
       const { data: existingRole } = await supabase
         .from("user_roles").select("id")
@@ -413,11 +415,11 @@ export default function UserManagementPage() {
         await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", "admin");
       }
 
-      toast.success("Utente aggiornato con successo");
+      toast.success(tr("User updated successfully", "Utente aggiornato con successo"));
       setEditingUser(null);
       fetchUsers();
     } catch {
-      toast.error("Errore salvataggio");
+      toast.error(tr("Save error", "Errore salvataggio"));
     } finally {
       setSaving(null);
     }
@@ -428,7 +430,7 @@ export default function UserManagementPage() {
       setBlocking(u.user_id);
       // Schema non ha account_status: aggiorniamo updated_at e mostriamo toast
       await supabase.from("profiles").update({ updated_at: new Date().toISOString() }).eq("user_id", u.user_id);
-      toast.success(u.account_status === "suspended" ? "Utente sbloccato" : "Utente bloccato");
+      toast.success(u.account_status === "suspended" ? tr("User unblocked", "Utente sbloccato") : tr("User blocked", "Utente bloccato"));
       fetchUsers();
     } finally {
       setBlocking(null);
@@ -440,9 +442,9 @@ export default function UserManagementPage() {
       setDeleting(userId);
       await supabase.from("user_roles").delete().eq("user_id", userId);
       const { error } = await supabase.from("profiles").delete().eq("user_id", userId);
-      if (error) { toast.error("Errore eliminazione utente"); return; }
+      if (error) { toast.error(tr("Error deleting user", "Errore eliminazione utente")); return; }
       setUsers((prev) => prev.filter((u) => u.user_id !== userId));
-      toast.success("Utente eliminato");
+      toast.success(tr("User deleted", "Utente eliminato"));
     } finally {
       setDeleting(null);
     }
@@ -450,23 +452,23 @@ export default function UserManagementPage() {
 
   const createUser = async () => {
     if (!newUserForm.email || !newUserForm.password) {
-      toast.error("Email e password sono obbligatori");
+      toast.error(tr("Email and password are required", "Email e password sono obbligatori"));
       return;
     }
     const phoneDigits = newUserForm.phone.replace(/\D/g, "");
     const waVal = newUserForm.same_whatsapp ? newUserForm.phone : newUserForm.whatsapp;
     const waDigits = waVal.replace(/\D/g, "");
     if (phoneDigits.length < 8) {
-      toast.error("Inserisci un numero di telefono valido.");
+      toast.error(tr("Enter a valid phone number.", "Inserisci un numero di telefono valido."));
       return;
     }
     if (waDigits.length < 8) {
-      toast.error("Inserisci un numero WhatsApp valido.");
+      toast.error(tr("Enter a valid WhatsApp number.", "Inserisci un numero WhatsApp valido."));
       return;
     }
     const validation = validatePassword(newUserForm.password, newUserForm.email, newUserForm.display_name);
     if (!validation.valid) {
-      toast.error("Password troppo debole. Usa almeno 12 caratteri con maiuscole, minuscole, numeri e simboli.");
+      toast.error(tr("Password too weak. Use at least 12 characters with uppercase, lowercase, numbers and symbols.", "Password troppo debole. Usa almeno 12 caratteri con maiuscole, minuscole, numeri e simboli."));
       return;
     }
     try {
@@ -488,18 +490,18 @@ export default function UserManagementPage() {
       if (error || (data as any)?.error) {
         const msg = String((data as any)?.error ?? error?.message ?? "").toLowerCase();
         if (msg.includes("weak") || msg.includes("pwned") || msg.includes("known") || msg.includes("easy to guess")) {
-          toast.error("Password rifiutata perché troppo semplice o già nota. Scegline una più sicura.");
+          toast.error(tr("Password rejected because it is too simple or known. Choose a stronger one.", "Password rifiutata perché troppo semplice o già nota. Scegline una più sicura."));
         } else {
-          toast.error("Errore creazione utente: " + ((data as any)?.error ?? error?.message ?? ""));
+          toast.error(tr("Error creating user: ", "Errore creazione utente: ") + ((data as any)?.error ?? error?.message ?? ""));
         }
         return;
       }
-      toast.success("Utente creato con successo");
+      toast.success(tr("User created successfully", "Utente creato con successo"));
       setShowNewUser(false);
       setNewUserForm({ display_name: "", email: "", password: "", phone: "", whatsapp: "", same_whatsapp: true, role: "user", subscription_plan: "free" });
       fetchUsers();
     } catch {
-      toast.error("Errore creazione utente");
+      toast.error(tr("Error creating user", "Errore creazione utente"));
     } finally {
       setCreatingUser(false);
     }
@@ -520,16 +522,16 @@ export default function UserManagementPage() {
         <div className="flex items-center gap-3">
           <ShieldCheck className="w-7 h-7 text-primary" />
           <div>
-            <h1 className="text-2xl font-bold text-primary">Gestione Utenti</h1>
-            <p className="text-xs text-muted-foreground">Amministra utenti, piani e incassi</p>
+            <h1 className="text-2xl font-bold text-primary">{tr("User Management", "Gestione Utenti")}</h1>
+            <p className="text-xs text-muted-foreground">{tr("Manage users, plans and revenue", "Amministra utenti, piani e incassi")}</p>
           </div>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={fetchUsers} className="gap-2 text-primary border-primary/30 hover:bg-primary/10">
-            <RefreshCw className="w-4 h-4" /> Aggiorna
+            <RefreshCw className="w-4 h-4" /> {tr("Refresh", "Aggiorna")}
           </Button>
           <Button size="sm" onClick={() => setShowNewUser(true)} className="gap-2 bg-primary hover:bg-primary/90">
-            <UserPlus className="w-4 h-4" /> Nuovo Utente
+            <UserPlus className="w-4 h-4" /> {tr("New User", "Nuovo Utente")}
           </Button>
         </div>
       </div>
@@ -537,7 +539,7 @@ export default function UserManagementPage() {
       {/* Visitor Counter */}
       <Card className="p-4 flex items-center justify-between bg-card">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-[#2D6A4F] font-[Inter]">Visite Totali</span>
+          <span className="text-sm font-semibold text-[#2D6A4F] font-[Inter]">{tr("Total Visits", "Visite Totali")}</span>
         </div>
         <div className="flex gap-1">
           {String(visitCount).padStart(5, '0').split("").map((digit, i) => (
@@ -553,19 +555,19 @@ export default function UserManagementPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-        <StatCard icon={Euro} label="Incasso Totale" value={`€${stats.incassoTotale.toFixed(2)}`} color="text-green-600" />
-        <StatCard icon={TrendingUp} label="Saldo Totale" value={`€${stats.saldoTotale.toFixed(2)}`} color="text-blue-600" />
-        <StatCard icon={UserCheck} label="Utenti Paganti" value={stats.utentiPaganti} color="text-yellow-600" />
-        <StatCard icon={Euro} label="Ultimi 30gg" value={`€${stats.ultimi30gg.toFixed(2)}`} color="text-purple-600" />
-        <StatCard icon={Calendar} label="Trial Attive" value={stats.trialAttive} color="text-cyan-600" />
-        <StatCard icon={AlertTriangle} label="Scaduti" value={stats.scaduti} color="text-red-500" />
+        <StatCard icon={Euro} label={tr("Total Revenue", tr("Total Revenue", "Incasso Totale"))} value={`€${stats.incassoTotale.toFixed(2)}`} color="text-green-600" />
+        <StatCard icon={TrendingUp} label={tr("Total Balance", tr("Total Balance", "Saldo Totale"))} value={`€${stats.saldoTotale.toFixed(2)}`} color="text-blue-600" />
+        <StatCard icon={UserCheck} label={tr("Paying Users", tr("Paying Users", "Utenti Paganti"))} value={stats.utentiPaganti} color="text-yellow-600" />
+        <StatCard icon={Euro} label={tr("Last 30 days", tr("Last 30 days", "Ultimi 30gg"))} value={`€${stats.ultimi30gg.toFixed(2)}`} color="text-purple-600" />
+        <StatCard icon={Calendar} label={tr("Active Trials", tr("Active Trials", "Trial Attive"))} value={stats.trialAttive} color="text-cyan-600" />
+        <StatCard icon={AlertTriangle} label={tr("Expired", tr("Expired", "Scaduti"))} value={stats.scaduti} color="text-red-500" />
       </div>
 
       {/* Incassi Tutte le App */}
       <Card>
         <div className="p-4 border-b flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-            <TrendingUp className="w-4 h-4" /> Incassi Tutte le App
+            <TrendingUp className="w-4 h-4" /> {tr("Revenue — All Apps", "Incassi Tutte le App")}
           </div>
           <span className="text-sm font-bold text-primary">
             Totale Generale: €{Object.values(crossApp).reduce((s, d) => s + d.amount, 0).toFixed(2)}
@@ -592,28 +594,28 @@ export default function UserManagementPage() {
             <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Cerca nome, email, telefono o WhatsApp..."
+                placeholder={tr("Search name, email, phone or WhatsApp...", tr("Search name, email, phone or WhatsApp...", "Cerca nome, email, telefono o WhatsApp..."))}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9 h-8 text-sm"
               />
             </div>
             <Select value={filterPlan} onValueChange={setFilterPlan}>
-              <SelectTrigger className="h-8 w-36 text-xs"><SelectValue placeholder="Tutti i piani" /></SelectTrigger>
+              <SelectTrigger className="h-8 w-36 text-xs"><SelectValue placeholder={tr("All plans", tr("All plans", "Tutti i piani"))} /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tutti i piani</SelectItem>
+                <SelectItem value="all">{tr("All plans", "Tutti i piani")}</SelectItem>
                 <SelectItem value="free">Free</SelectItem>
                 <SelectItem value="pro">Pro</SelectItem>
               </SelectContent>
             </Select>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="h-8 w-36 text-xs"><SelectValue placeholder="Tutti gli stati" /></SelectTrigger>
+              <SelectTrigger className="h-8 w-36 text-xs"><SelectValue placeholder={tr("All statuses", tr("All statuses", "Tutti gli stati"))} /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tutti gli stati</SelectItem>
-                <SelectItem value="active">Attivo</SelectItem>
+                <SelectItem value="all">{tr("All statuses", "Tutti gli stati")}</SelectItem>
+                <SelectItem value="active">{tr("Active", "Attivo")}</SelectItem>
                 <SelectItem value="trialing">Trial</SelectItem>
-                <SelectItem value="cancelled">Cancellato</SelectItem>
-                <SelectItem value="past_due">Scaduto</SelectItem>
+                <SelectItem value="cancelled">{tr("Canceled", "Cancellato")}</SelectItem>
+                <SelectItem value="past_due">{tr("Expired", "Scaduto")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -624,21 +626,21 @@ export default function UserManagementPage() {
             <Table>
               <TableHeader>
                 <TableRow className="text-xs">
-                  <TableHead className="whitespace-nowrap">Nome</TableHead>
+                  <TableHead className="whitespace-nowrap">{tr("Name", "Nome")}</TableHead>
                   <TableHead className="whitespace-nowrap">Email</TableHead>
-                  <TableHead className="whitespace-nowrap">Telefono</TableHead>
+                  <TableHead className="whitespace-nowrap">{tr("Phone", "Telefono")}</TableHead>
                   <TableHead className="whitespace-nowrap">WhatsApp</TableHead>
-                  <TableHead className="whitespace-nowrap">Ruolo</TableHead>
-                  <TableHead className="whitespace-nowrap">Piano</TableHead>
+                  <TableHead className="whitespace-nowrap">{tr("Role", "Ruolo")}</TableHead>
+                  <TableHead className="whitespace-nowrap">{tr("Plan", "Piano")}</TableHead>
                   <TableHead className="whitespace-nowrap">Provider</TableHead>
-                  <TableHead className="whitespace-nowrap">Stato Abb.</TableHead>
-                  <TableHead className="whitespace-nowrap">Scadenza</TableHead>
-                  <TableHead className="whitespace-nowrap">Tot. Pagato</TableHead>
-                  <TableHead className="whitespace-nowrap">Saldo</TableHead>
-                  <TableHead className="whitespace-nowrap">Notifiche</TableHead>
-                  <TableHead className="whitespace-nowrap">Data Reg.</TableHead>
-                  <TableHead className="whitespace-nowrap">Ultimo Accesso</TableHead>
-                  <TableHead className="text-right whitespace-nowrap">Azioni</TableHead>
+                  <TableHead className="whitespace-nowrap">{tr("Sub. Status", "Stato Abb.")}</TableHead>
+                  <TableHead className="whitespace-nowrap">{tr("Expiry", "Scadenza")}</TableHead>
+                  <TableHead className="whitespace-nowrap">{tr("Total Paid", "Tot. Pagato")}</TableHead>
+                  <TableHead className="whitespace-nowrap">{tr("Balance", "Saldo")}</TableHead>
+                  <TableHead className="whitespace-nowrap">{tr("Notifications", "Notifiche")}</TableHead>
+                  <TableHead className="whitespace-nowrap">{tr("Reg. Date", "Data Reg.")}</TableHead>
+                  <TableHead className="whitespace-nowrap">{tr("Last Login", "Ultimo Accesso")}</TableHead>
+                  <TableHead className="text-right whitespace-nowrap">{tr("Actions", "Azioni")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -646,7 +648,7 @@ export default function UserManagementPage() {
                   <TableCell colSpan={15} className="py-1 px-4">
                     <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                       <Users className="w-3.5 h-3.5" />
-                      Utenti Registrati ({filtered.length}{search ? ` di ${users.length}` : ""})
+                      {tr("Registered Users", "Utenti Registrati")} ({filtered.length}{search ? ` ${tr("of", "di")} ${users.length}` : ""})
                     </div>
                   </TableCell>
                 </TableRow>
@@ -654,7 +656,7 @@ export default function UserManagementPage() {
                 {filtered.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={15} className="text-center py-10 text-muted-foreground text-sm">
-                      Nessun utente trovato
+                      {tr("No users found", "Nessun utente trovato")}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -679,7 +681,7 @@ export default function UserManagementPage() {
                                   className="h-7 text-xs w-32"
                                 />
                               ) : (u.display_name || u.email || "—")}
-                              {isMe && <Badge variant="outline" className="ml-1 text-[10px] py-0">Tu</Badge>}
+                              {isMe && <Badge variant="outline" className="ml-1 text-[10px] py-0">{tr("You", "Tu")}</Badge>}
                             </span>
                           </div>
                         </TableCell>
@@ -745,10 +747,10 @@ export default function UserManagementPage() {
                             <Select value={editForm.subscription_status} onValueChange={(v) => setEditForm({ ...editForm, subscription_status: v })}>
                               <SelectTrigger className="w-32 h-7 text-xs"><SelectValue /></SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="active">Attivo</SelectItem>
+                                <SelectItem value="active">{tr("Active", "Attivo")}</SelectItem>
                                 <SelectItem value="trialing">Trial</SelectItem>
-                                <SelectItem value="cancelled">Cancellato</SelectItem>
-                                <SelectItem value="past_due">Scaduto</SelectItem>
+                                <SelectItem value="cancelled">{tr("Canceled", "Cancellato")}</SelectItem>
+                                <SelectItem value="past_due">{tr("Expired", "Scaduto")}</SelectItem>
                               </SelectContent>
                             </Select>
                           ) : getStatusBadge(u.subscription_status)}
@@ -780,18 +782,18 @@ export default function UserManagementPage() {
                         <TableCell className="text-right whitespace-nowrap">
                           {isEditing ? (
                             <div className="flex items-center justify-end gap-1">
-                              <Button size="sm" variant="ghost" onClick={cancelEditing} className="h-7 text-xs">Annulla</Button>
+                              <Button size="sm" variant="ghost" onClick={cancelEditing} className="h-7 text-xs">{tr("Cancel", "Annulla")}</Button>
                               <Button size="sm" onClick={() => saveUser(u.user_id)} disabled={saving === u.user_id} className="h-7 text-xs gap-1">
                                 {saving === u.user_id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
-                                Salva
+                                {tr("Save", "Salva")}
                               </Button>
                             </div>
                           ) : (
                             <div className="flex items-center justify-end gap-1">
-                              <Button size="sm" variant="outline" onClick={() => startEditing(u)} className="h-7 text-xs">Modifica</Button>
+                              <Button size="sm" variant="outline" onClick={() => startEditing(u)} className="h-7 text-xs">{tr("Edit", "Modifica")}</Button>
                               {!isMe && (
                                 <Button size="sm" variant="ghost" onClick={() => toggleBlock(u)} disabled={blocking === u.user_id}
-                                  title={u.account_status === "suspended" ? "Sblocca" : "Blocca"}
+                                  title={u.account_status === "suspended" ? tr("Unblock", "Sblocca") : tr("Block", "Blocca")}
                                   className={`h-7 w-7 p-0 ${u.account_status === "suspended" ? "text-green-600 hover:bg-green-50" : "text-orange-500 hover:bg-orange-50"}`}>
                                   {blocking === u.user_id ? <Loader2 className="w-3 h-3 animate-spin" />
                                     : u.account_status === "suspended" ? <CheckCircle2 className="w-3 h-3" /> : <Ban className="w-3 h-3" />}
@@ -807,14 +809,14 @@ export default function UserManagementPage() {
                                   </AlertDialogTrigger>
                                   <AlertDialogContent>
                                     <AlertDialogHeader>
-                                      <AlertDialogTitle>Eliminare utente?</AlertDialogTitle>
+                                      <AlertDialogTitle>{tr("Delete user?", "Eliminare utente?")}</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        Stai per eliminare <strong>{u.display_name || u.email || "questo utente"}</strong>. Azione irreversibile.
+                                        {tr("You are about to delete", "Stai per eliminare")} <strong>{u.display_name || u.email || "questo utente"}</strong>. {tr("This action cannot be undone.", "Azione irreversibile.")}
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
-                                      <AlertDialogCancel>Annulla</AlertDialogCancel>
-                                      <AlertDialogAction onClick={() => deleteUser(u.user_id)} className="bg-red-600 hover:bg-red-700">Elimina</AlertDialogAction>
+                                      <AlertDialogCancel>{tr("Cancel", "Annulla")}</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => deleteUser(u.user_id)} className="bg-red-600 hover:bg-red-700">{tr("Delete", "Elimina")}</AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
                                 </AlertDialog>
@@ -837,12 +839,12 @@ export default function UserManagementPage() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <UserPlus className="w-5 h-5 text-primary" /> Nuovo Utente
+              <UserPlus className="w-5 h-5 text-primary" /> {tr("New User", "Nuovo Utente")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <Label className="text-sm">Nome completo</Label>
+              <Label className="text-sm">{tr("Full name", "Nome completo")}</Label>
               <Input placeholder="Mario Rossi" value={newUserForm.display_name}
                 onChange={(e) => setNewUserForm({ ...newUserForm, display_name: e.target.value })} className="mt-1" />
             </div>
@@ -854,19 +856,19 @@ export default function UserManagementPage() {
             <div>
               <Label className="text-sm">Password *</Label>
               <div className="relative mt-1">
-                <Input type={showPwd ? "text" : "password"} placeholder="Min. 12 caratteri" value={newUserForm.password}
+                <Input type={showPwd ? "text" : "password"} placeholder={tr("Min. 12 characters", tr("Min. 12 characters", "Min. 12 caratteri"))} value={newUserForm.password}
                   onChange={(e) => setNewUserForm({ ...newUserForm, password: e.target.value })} className="pr-20" />
                 <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
                   <button type="button" onClick={() => setShowPwd((v) => !v)}
                     className="p-1.5 rounded hover:bg-muted text-muted-foreground"
-                    aria-label={showPwd ? "Nascondi password" : "Mostra password"}>
+                    aria-label={showPwd ? tr("Hide password", "Nascondi password") : tr("Show password", "Mostra password")}>
                     {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                   <button type="button" onClick={async () => {
                     if (!newUserForm.password) return;
-                    try { await navigator.clipboard.writeText(newUserForm.password); toast.success("Password copiata"); }
-                    catch { toast.error("Impossibile copiare"); }
-                  }} className="p-1.5 rounded hover:bg-muted text-muted-foreground" aria-label="Copia password">
+                    try { await navigator.clipboard.writeText(newUserForm.password); toast.success(tr("Password copied", "Password copiata")); }
+                    catch { toast.error(tr("Unable to copy", "Impossibile copiare")); }
+                  }} className="p-1.5 rounded hover:bg-muted text-muted-foreground" aria-label={tr("Copy password", tr("Copy password", "Copia password"))}>
                     <Copy className="w-4 h-4" />
                   </button>
                 </div>
@@ -878,11 +880,11 @@ export default function UserManagementPage() {
                     setNewUserForm({ ...newUserForm, password: p });
                     setShowPwd(true);
                   }} className="gap-1.5 rounded-full text-xs">
-                  <Wand2 className="w-3.5 h-3.5" /> Genera password sicura
+                  <Wand2 className="w-3.5 h-3.5" /> {tr("Generate secure password", "Genera password sicura")}
                 </Button>
               </div>
               <p className="text-[11px] text-muted-foreground mt-2 leading-snug">
-                La password deve avere almeno 12 caratteri, una maiuscola, una minuscola, un numero e un simbolo.
+                {tr("Password must have at least 12 characters, an uppercase letter, a lowercase letter, a number and a symbol.", "La password deve avere almeno 12 caratteri, una maiuscola, una minuscola, un numero e un simbolo.")}
                 Evita parole comuni, nome utente o email.
               </p>
               {newUserForm.password && (() => {
@@ -895,17 +897,17 @@ export default function UserManagementPage() {
                 return (
                   <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-1">
                     <Item ok={v.checks.length} label="≥ 12 caratteri" />
-                    <Item ok={v.checks.upper} label="Maiuscola" />
-                    <Item ok={v.checks.lower} label="Minuscola" />
-                    <Item ok={v.checks.number} label="Numero" />
-                    <Item ok={v.checks.symbol} label="Simbolo" />
-                    <Item ok={v.checks.noName && v.checks.noEmail} label="No nome/email" />
+                    <Item ok={v.checks.upper} label={tr("Uppercase", tr("Uppercase", "Maiuscola"))} />
+                    <Item ok={v.checks.lower} label={tr("Lowercase", tr("Lowercase", "Minuscola"))} />
+                    <Item ok={v.checks.number} label={tr("Number", tr("Number", "Numero"))} />
+                    <Item ok={v.checks.symbol} label={tr("Symbol", tr("Symbol", "Simbolo"))} />
+                    <Item ok={v.checks.noName && v.checks.noEmail} label={tr("No name/email", tr("No name/email", "No nome/email"))} />
                   </div>
                 );
               })()}
             </div>
             <div>
-              <Label className="text-sm">Telefono *</Label>
+              <Label className="text-sm">{tr("Phone *", "Telefono *")}</Label>
               <Input type="tel" placeholder="+39 333 1234567" value={newUserForm.phone}
                 onChange={(e) => setNewUserForm({ ...newUserForm, phone: e.target.value })} className="mt-1" />
             </div>
@@ -916,7 +918,7 @@ export default function UserManagementPage() {
                 onChange={(e) => setNewUserForm({ ...newUserForm, same_whatsapp: e.target.checked })}
                 className="h-4 w-4 rounded border-border"
               />
-              Usa lo stesso numero per WhatsApp
+              {tr("Use the same number for WhatsApp", "Usa lo stesso numero per WhatsApp")}
             </label>
             {!newUserForm.same_whatsapp && (
               <div>
@@ -927,7 +929,7 @@ export default function UserManagementPage() {
             )}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-sm">Ruolo</Label>
+                <Label className="text-sm">{tr("Role", "Ruolo")}</Label>
                 <Select value={newUserForm.role} onValueChange={(v: "admin" | "user") => setNewUserForm({ ...newUserForm, role: v })}>
                   <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -937,7 +939,7 @@ export default function UserManagementPage() {
                 </Select>
               </div>
               <div>
-                <Label className="text-sm">Piano</Label>
+                <Label className="text-sm">{tr("Plan", "Piano")}</Label>
                 <Select value={newUserForm.subscription_plan} onValueChange={(v) => setNewUserForm({ ...newUserForm, subscription_plan: v })}>
                   <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -949,10 +951,10 @@ export default function UserManagementPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNewUser(false)}>Annulla</Button>
+            <Button variant="outline" onClick={() => setShowNewUser(false)}>{tr("Cancel", "Annulla")}</Button>
             <Button onClick={createUser} disabled={creatingUser} className="gap-2">
               {creatingUser ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
-              Crea Utente
+              {tr("Create User", "Crea Utente")}
             </Button>
           </DialogFooter>
         </DialogContent>
