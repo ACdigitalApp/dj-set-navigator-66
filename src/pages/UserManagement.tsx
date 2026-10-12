@@ -648,7 +648,7 @@ export default function UserManagementPage() {
                   <TableCell colSpan={15} className="py-1 px-4">
                     <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                       <Users className="w-3.5 h-3.5" />
-                      Utenti Registrati ({filtered.length}{search ? ` di ${users.length}` : ""})
+                      {tr("Registered Users", "Utenti Registrati")} ({filtered.length}{search ? ` ${tr("of", "di")} ${users.length}` : ""})
                     </div>
                   </TableCell>
                 </TableRow>
