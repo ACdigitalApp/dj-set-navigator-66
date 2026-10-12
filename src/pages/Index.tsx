@@ -118,8 +118,8 @@ export default function IndexPage() {
                     <div className="mx-auto mb-6 flex h-32 w-32 items-center justify-center">
                       <img src={headphonesImg} alt="DJ Headphones" className="h-28 w-28 object-contain" />
                     </div>
-                    <h3 className="text-3xl font-bold tracking-tight text-slate-900">{item.title}</h3>
-                    <p className="mt-5 text-lg leading-8 text-slate-600">{item.description}</p>
+                    <h3 className="text-3xl font-bold tracking-tight text-slate-900">{L(item.title, item.titleIt)}</h3>
+                    <p className="mt-5 text-lg leading-8 text-slate-600">{L(item.description, item.descriptionIt)}</p>
                   </div>
               ))}
             </div>
