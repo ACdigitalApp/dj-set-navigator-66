@@ -353,6 +353,30 @@ export type Database = {
         }
         Relationships: []
       }
+      sumup_payments: {
+        Row: {
+          amount: number
+          checkout_id: string
+          paid_at: string
+          plan: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          checkout_id: string
+          paid_at?: string
+          plan: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          checkout_id?: string
+          paid_at?: string
+          plan?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tracks: {
         Row: {
           affinity_score: number | null
@@ -523,6 +547,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      expire_pro_plans: { Args: never; Returns: number }
       get_app_visit_count: { Args: { p_app_key: string }; Returns: number }
       has_role: {
         Args: {
