@@ -357,6 +357,10 @@ export type Database = {
         Row: {
           amount: number
           checkout_id: string
+          ingest_attempts: number
+          ingest_delivered_at: string | null
+          ingest_error: string | null
+          ingest_status: string
           paid_at: string
           plan: string
           user_id: string
@@ -364,6 +368,10 @@ export type Database = {
         Insert: {
           amount: number
           checkout_id: string
+          ingest_attempts?: number
+          ingest_delivered_at?: string | null
+          ingest_error?: string | null
+          ingest_status?: string
           paid_at?: string
           plan: string
           user_id: string
@@ -371,6 +379,10 @@ export type Database = {
         Update: {
           amount?: number
           checkout_id?: string
+          ingest_attempts?: number
+          ingest_delivered_at?: string | null
+          ingest_error?: string | null
+          ingest_status?: string
           paid_at?: string
           plan?: string
           user_id?: string
