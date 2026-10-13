@@ -12,6 +12,62 @@ const PLANS: Record<string, { amount: number; days: number; label: string }> = {
 
 const API = "https://api.sumup.com/v0.1";
 
+
+const INGEST_URL = "https://svvvcitnoemgopoinlzp.supabase.co/functions/v1/ingest-payment";
+const APP_KEY = "djsengine";
+
+async function hmacHex(secret: string, msg: string) {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+// Deliver a confirmed payment to AC Digital App; max 3 attempts in total (tracked in DB).
+async function deliverToCentral(supabase: any, checkoutId: string, email: string | null) {
+  const secret = Deno.env.get("AC_DIGITAL_INGEST_SECRET");
+  const { data: row } = await supabase.from("sumup_payments").select("*").eq("checkout_id", checkoutId).maybeSingle();
+  if (!row || row.ingest_status === "delivered" || row.ingest_attempts >= 3) return;
+  if (!secret) {
+    await supabase.from("sumup_payments").update({ ingest_error: "missing_secret" }).eq("checkout_id", checkoutId);
+    return;
+  }
+  const payload = JSON.stringify({
+    app_key: APP_KEY,
+    provider: "sumup",
+    reference: checkoutId,
+    amount_cents: Math.round(Number(row.amount) * 100),
+    currency: "EUR",
+    status: "paid",
+    plan: row.plan,
+    paid_at: new Date(row.paid_at).toISOString(),
+    email_status: "not_sent", // DJ'S Engine has no payment confirmation email system
+  });
+  let attempts = row.ingest_attempts;
+  while (attempts < 3) {
+    attempts++;
+    let ok = false, err = "";
+    try {
+      const ts = String(Date.now());
+      const r = await fetch(INGEST_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-app-key": APP_KEY, "x-timestamp": ts, "x-signature": await hmacHex(secret, `${ts}.${payload}`) },
+        body: payload,
+      });
+      const txt = await r.text();
+      try { ok = JSON.parse(txt)?.ok === true; } catch { /* not json */ }
+      if (!ok) err = `HTTP ${r.status}: ${txt.slice(0, 300)}`;
+    } catch (e) { err = (e as Error).message; }
+    await supabase.from("sumup_payments").update({
+      ingest_attempts: attempts,
+      ingest_status: ok ? "delivered" : (attempts >= 3 ? "failed" : "retrying"),
+      ingest_error: ok ? null : err,
+      ingest_delivered_at: ok ? new Date().toISOString() : null,
+    }).eq("checkout_id", checkoutId);
+    if (ok) return;
+    if (attempts < 3) await new Promise((res) => setTimeout(res, 1000 * attempts));
+  }
+}
+
 function json(payload: unknown, status = 200) {
   return new Response(JSON.stringify(payload), {
     status,
@@ -78,7 +134,10 @@ Deno.serve(async (req) => {
         const { error: insErr } = await supabase.from("sumup_payments").insert({
           checkout_id: data.id, user_id: user.id, plan: planKey, amount: Number(data.amount),
         });
-        if (insErr) return json({ status: "paid", already_processed: true });
+        if (insErr) {
+          await deliverToCentral(supabase, data.id, user.email ?? null);
+          return json({ status: "paid", already_processed: true });
+        }
 
         const { data: prof } = await supabase.from("profiles")
           .select("current_period_end").eq("user_id", user.id).maybeSingle();
@@ -90,6 +149,7 @@ Deno.serve(async (req) => {
           current_period_end: new Date(base + plan.days * 86400000).toISOString(),
           updated_at: new Date().toISOString(),
         }).eq("user_id", user.id);
+        await deliverToCentral(supabase, data.id, user.email ?? null);
         return json({ status: "paid" });
       }
       return json({ status: data.status === "FAILED" ? "failed" : "pending" });
