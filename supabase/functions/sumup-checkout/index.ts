@@ -41,7 +41,6 @@ async function deliverToCentral(supabase: any, checkoutId: string, email: string
     plan: row.plan,
     paid_at: new Date(row.paid_at).toISOString(),
     email_status: "not_sent", // DJ'S Engine has no payment confirmation email system
-    customer_email: email ?? undefined,
   });
   let attempts = row.ingest_attempts;
   while (attempts < 3) {
